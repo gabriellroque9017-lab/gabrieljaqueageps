@@ -14,8 +14,56 @@
 const PAGINA = location.pathname.split('/').pop() || 'index.html';
 const REMOTO = Deposito.modo() === 'github';
 
-// trava: no ar, só com ?editar=1
-if (REMOTO && !/[?&]editar=1(&|$)/.test(location.search)) return;
+/* No site publicado o editor fica desligado por padrão. Quem liga é o botão
+   discreto do canto — ou o ?editar=1 no endereço, que continua valendo.
+   Uma vez ligado, fica ligado na aba enquanto você navega. */
+const MARCA = 'editor:ligado';
+const pediuNoEndereco = /[?&]editar=1(&|$)/.test(location.search);
+
+if (REMOTO) {
+  if (pediuNoEndereco) sessionStorage.setItem(MARCA, '1');
+  if (!sessionStorage.getItem(MARCA)) {
+    botaoDiscreto();
+    return;
+  }
+}
+
+/* O botão que aparece para todo mundo. Sozinho ele não dá acesso a nada:
+   sem um token válido, nenhuma gravação passa. */
+function botaoDiscreto() {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'ed-entrar';
+  b.textContent = 'editar';
+  b.title = 'Editar o site (só para os noivos)';
+  b.onclick = () => {
+    // já configurado antes? entra direto, sem perguntar de novo
+    if (Deposito.conf()) {
+      sessionStorage.setItem(MARCA, '1');
+      location.reload();
+      return;
+    }
+    painelGitHub(true);
+  };
+  document.body.appendChild(b);
+}
+
+/* Os links internos passam a carregar o ?editar=1, para o endereço na barra
+   contar a verdade e um F5 não derrubar a edição. */
+function marcarLinks() {
+  if (!REMOTO) return;
+  document.querySelectorAll('a[href]').forEach((a) => {
+    const href = a.getAttribute('href');
+    if (!href || !/\.html(\?|#|$)/.test(href) || /^https?:/i.test(href)) return;
+    if (/[?&]editar=1(&|$)/.test(href)) return;
+    a.setAttribute('href', href + (href.includes('?') ? '&' : '?') + 'editar=1');
+  });
+}
+
+function sairDaEdicao() {
+  sessionStorage.removeItem(MARCA);
+  location.href = location.pathname;
+}
 
 /* ------------------------------------------------------------
    Avisos
@@ -619,41 +667,57 @@ function prepararTextosLivres() {
 /* ------------------------------------------------------------
    Conta do GitHub
    ------------------------------------------------------------ */
-function painelGitHub() {
+function painelGitHub(entrando) {
   const c = Deposito.conf() || {};
   const painel = document.createElement('div');
   painel.className = 'ed-painel ed-painel--conta';
   painel.innerHTML =
-    '<strong>Conta do GitHub</strong>' +
-    '<span class="ed-painel__dica">Só fica no seu navegador. Nunca é enviado para o site.</span>' +
-    `<label>Seu usuário<input class="ed-dono" value="${c.dono || ''}" placeholder="ex.: gabriel"></label>` +
-    `<label>Repositório<input class="ed-repo" value="${c.repo || ''}" placeholder="ex.: casamento"></label>` +
+    '<strong>Entrar para editar</strong>' +
+    '<span class="ed-painel__dica">Estes dados ficam só no seu navegador. Nunca vão para o site — ' +
+    'se fossem, qualquer visitante poderia alterá-lo.</span>' +
+    `<label>Usuário do GitHub<input class="ed-dono" value="${c.dono || ''}" placeholder="gabriellroque9017-lab"></label>` +
+    `<label>Repositório<input class="ed-repo" value="${c.repo || ''}" placeholder="gabrieljaqueageps"></label>` +
     `<label>Ramo<input class="ed-ramo" value="${c.ramo || 'main'}"></label>` +
     `<label>Token<input class="ed-token" type="password" value="${c.token || ''}" placeholder="github_pat_..."></label>` +
+    '<label class="ed-lembrar"><input type="checkbox" class="ed-check"' + (c.lembrar === false ? '' : ' checked') + '>' +
+    'Manter salvo neste aparelho</label>' +
+    '<span class="ed-painel__dica">Desmarque se este computador não for seu — aí os dados somem ao fechar a aba.</span>' +
     '<div class="ed-painel__acoes">' +
-    '<button type="button" class="ed-painel__ok">Salvar e testar</button>' +
-    '<button type="button" class="ed-painel__nao">Fechar</button></div>' +
+    '<button type="button" class="ed-painel__ok">Entrar</button>' +
+    '<button type="button" class="ed-painel__nao">Cancelar</button></div>' +
     '<button type="button" class="ed-painel__limpar">Esquecer estes dados</button>';
   document.body.appendChild(painel);
+  painel.querySelector('.ed-dono').focus();
 
   painel.querySelector('.ed-painel__nao').onclick = () => painel.remove();
   painel.querySelector('.ed-painel__limpar').onclick = () => {
     Deposito.esquecerConf();
     painel.remove();
-    aviso('Dados do GitHub esquecidos neste navegador');
+    aviso('Dados esquecidos neste navegador');
   };
   painel.querySelector('.ed-painel__ok').onclick = async () => {
-    Deposito.salvarConf({
+    const dados = {
       dono: painel.querySelector('.ed-dono').value.trim(),
       repo: painel.querySelector('.ed-repo').value.trim(),
       ramo: painel.querySelector('.ed-ramo').value.trim() || 'main',
       token: painel.querySelector('.ed-token').value.trim(),
-    });
+    };
+    if (!dados.dono || !dados.repo || !dados.token) {
+      aviso('Falta preencher usuário, repositório ou token', 'erro');
+      return;
+    }
+    Deposito.salvarConf(dados, painel.querySelector('.ed-check').checked);
     try {
       aviso('Testando…', 'aguarde');
       const r = await Deposito.testar();
-      aviso(`Conectado a ${r.onde} — ${r.permissao}`, 'ok', true);
       painel.remove();
+      if (entrando) {
+        sessionStorage.setItem(MARCA, '1');
+        aviso(`Conectado a ${r.onde} — abrindo o editor…`, 'ok');
+        setTimeout(() => location.reload(), 700);
+      } else {
+        aviso(`Conectado a ${r.onde} — ${r.permissao}`, 'ok', true);
+      }
     } catch (e) {
       aviso('Não deu: ' + e.message, 'erro', true);
     }
@@ -691,7 +755,15 @@ function barra() {
     bConta.className = 'ed-mais';
     bConta.textContent = 'Conta do GitHub';
     bConta.onclick = painelGitHub;
-    b.appendChild(bConta);
+
+    const bSair = document.createElement('button');
+    bSair.type = 'button';
+    bSair.className = 'ed-mais ed-mais--sair';
+    bSair.textContent = 'Sair da edição';
+    bSair.title = 'Voltar a ver o site como um convidado';
+    bSair.onclick = sairDaEdicao;
+
+    b.append(bConta, bSair);
   }
   document.body.appendChild(b);
 }
@@ -700,8 +772,9 @@ function tarja() {
   const f = document.createElement('div');
   f.className = 'ed-faixa';
   f.innerHTML = REMOTO
-    ? '<strong>Modo de edição — site publicado.</strong> Cada mudança vira um commit no GitHub e entra no ar em ~1 min. ' +
-      'Os convidados não veem nada disto: o editor só aparece com <code>?editar=1</code> no endereço.'
+    ? '<strong>Modo de edição — site publicado.</strong> Fica ligado nesta aba enquanto você navega. ' +
+      'Cada mudança vira um commit no GitHub e entra no ar em ~1 min. ' +
+      'Os convidados não veem nada disto.'
     : '<strong>Modo de edição — seu computador.</strong> As mudanças são gravadas em <code>assets/</code> e no HTML pelo servidor local.';
   document.body.appendChild(f);
 }
@@ -713,6 +786,7 @@ document.querySelectorAll('img[data-editavel]').forEach(prepararFoto);
 prepararMosaico();
 prepararGaleria();
 prepararTextosLivres();
+marcarLinks();
 barra();
 tarja();
 

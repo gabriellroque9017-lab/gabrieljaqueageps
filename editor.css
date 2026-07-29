@@ -169,6 +169,24 @@ body[data-posicionando="true"] *{ cursor:crosshair !important; }
 .ed-painel__nao{ background:rgba(254,255,233,.16); color:#FEFFE9; }
 .ed-painel__dica{ font-size:11px; opacity:.7; line-height:1.35; }
 
+/* Botão de entrar, visível para todos. Discreto de propósito: sozinho ele
+   não abre nada — sem token válido nenhuma gravação passa. */
+.ed-entrar{
+  position:fixed; left:14px; bottom:14px; z-index:150;
+  padding:6px 12px; border:1px solid rgba(46,49,5,.25); border-radius:2px;
+  background:rgba(254,255,233,.7); color:#2E3105;
+  font:400 11px/1 system-ui, sans-serif; letter-spacing:.06em;
+  text-transform:lowercase; cursor:pointer; opacity:.4;
+  transition:opacity .2s ease;
+}
+.ed-entrar:hover, .ed-entrar:focus-visible{ opacity:1; }
+
+.ed-lembrar{
+  flex-direction:row !important; align-items:center; gap:8px !important;
+  font-size:12px; opacity:1 !important; cursor:pointer;
+}
+.ed-lembrar .ed-check{ width:15px; height:15px; accent-color:#DFE777; cursor:pointer; }
+
 /* ---- avisos ---- */
 .ed-faixa{
   position:fixed; left:0; right:0; bottom:0; z-index:200;
@@ -194,3 +212,5 @@ body[data-posicionando="true"] *{ cursor:crosshair !important; }
 
 /* o botão de som e a faixa disputam o canto de baixo */
 .ed-faixa ~ .som, body:has(.ed-faixa) .som{ bottom:58px; }
+
+.ed-mais--sair{ background:rgba(24,26,3,.55); }

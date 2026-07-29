@@ -38,11 +38,28 @@ window.Deposito = (function () {
   };
 
   /* ---------- configuração do GitHub ---------- */
+  /* Guardado no aparelho (localStorage) só se a pessoa pedir. Sem isso vai
+     para a aba (sessionStorage), e some quando ela fecha — o certo para um
+     computador emprestado. */
   function conf() {
-    try { return JSON.parse(localStorage.getItem(CHAVE_CONF)) || null; } catch { return null; }
+    for (const onde of [sessionStorage, localStorage]) {
+      try {
+        const c = JSON.parse(onde.getItem(CHAVE_CONF));
+        if (c && c.token) return c;
+      } catch { /* lixo guardado, ignora */ }
+    }
+    return null;
   }
-  function salvarConf(c) { localStorage.setItem(CHAVE_CONF, JSON.stringify(c)); }
-  function esquecerConf() { localStorage.removeItem(CHAVE_CONF); }
+  function salvarConf(c, lembrar) {
+    const alvo = lembrar ? localStorage : sessionStorage;
+    const outro = lembrar ? sessionStorage : localStorage;
+    outro.removeItem(CHAVE_CONF);
+    alvo.setItem(CHAVE_CONF, JSON.stringify({ ...c, lembrar: !!lembrar }));
+  }
+  function esquecerConf() {
+    sessionStorage.removeItem(CHAVE_CONF);
+    localStorage.removeItem(CHAVE_CONF);
+  }
 
   function precisaConf() {
     const c = conf();
