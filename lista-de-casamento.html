@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presentes — Entre Videiras e Promessas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<header class="cabecalho">
+  <nav class="cabecalho__nav cabecalho__nav--esq" aria-label="Principal">
+    <a class="link-simples" href="nossa-historia.html">Nossa História</a>
+    <a class="link-simples" href="contato.html">Contatos</a>
+    <a class="link-simples" href="viagem-e-estada.html">Viagem e Estadia</a>
+  </nav>
+
+  <div class="cabecalho__titulo"><a class="link-simples" href="index.html">Entre Videiras e Promessas</a></div>
+
+  <span class="cabecalho__pagina">Presentes</span>
+
+  <nav class="cabecalho__nav cabecalho__nav--dir" aria-label="Presentes e fotos">
+    <a class="link-simples" href="lista-de-casamento.html" aria-current="page">Presentes</a>
+    <a class="link-simples" href="portfolio.html">Portfolio</a>
+    <a class="link-simples" href="confirmar-presenca.html">Confirmar presença</a>
+  </nav>
+
+  <button class="hamburguer" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+    <span></span><span></span>
+  </button>
+</header>
+
+<nav class="menu" id="menu" data-aberto="false" aria-label="Menu">
+  <a href="nossa-historia.html">Nossa História</a>
+  <a href="contato.html">Contatos</a>
+  <a href="viagem-e-estada.html">Viagem e Estadia</a>
+  <a class="menu__marca" href="index.html">Entre Videiras e Promessas</a>
+  <a href="lista-de-casamento.html">Presentes</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="confirmar-presenca.html">Confirmar presença</a>
+</nav>
+
+<main>
+
+  <section data-ancora="1" class="capa capa--lista grade grade--borda">
+    <div class="capa__fundo">
+      <img src="assets/Stocksy_comp_701203.jpg" alt="" data-editavel="lista-de-casamento-1">
+      <div class="capa__veu capa__veu--oliva"></div>
+    </div>
+
+    <div class="capa__conteudo">
+      <h1 class="tipo-h3" data-texto="lista-de-casamento-t1">Muita gente vai atravessar meio estado para estar com a gente em Vassouras. Isso já é presente demais. Mas se você quiser deixar também um empurrãozinho para o que vem depois do dia 12, é por aqui.</h1>
+    </div>
+  </section>
+
+  <section data-ancora="2" class="pix">
+    <div class="grade grade--borda">
+      <p class="pix__texto" data-texto="lista-de-casamento-t2">Não montamos lista de loja. O que chegar por aqui vira a nossa lua de mel — uma noite a mais em algum lugar bonito, um jantar sem olhar o preço, uma estrada que a gente ainda não pegou.</p>
+    </div>
+
+    <div class="grade grade--borda pix__grade">
+      <p class="pix__instrucao" data-texto="lista-de-casamento-t3">Aponte a câmera do celular para o código. Se preferir, copie e cole no aplicativo do banco.</p>
+
+      <div class="pix__cartao">
+        <div class="pix__qr" id="qrcode" role="img" aria-label="QR Code do Pix"></div>
+      </div>
+
+      <button class="botao botao--escuro pix__botao" type="button" id="pix-copiar">Copiar o código</button>
+
+      <p class="pix__aviso" id="pix-aviso" hidden data-texto="lista-de-casamento-t4">O Pix ainda não foi configurado — falta colar o código em <code>pix.js</code>. Enquanto isso, nenhum QR é desenhado.</p>
+    </div>
+
+    <div class="grade grade--borda">
+      <p class="pix__rodape" data-texto="lista-de-casamento-t5">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Se preferir presentear de outro jeito, fazer uma surpresa, ou só mandar um recado, <a class="link-sublinhado" href="contato.html">fale com a gente</a>.&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;E que fique dito: presente nenhum vale o que vale ter você lá no dia.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <div class="grade grade--borda rodape__grade">
+    <p class="rodape__links">
+      <a class="link-sublinhado" href="contato.html">Contatos</a>
+    </p>
+  </div>
+</footer>
+
+<audio id="musica" preload="auto"></audio>
+<button class="som" id="som" type="button" aria-pressed="false" aria-label="Silenciar a música">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"></path>
+    <path class="som__onda" d="M15.5 9.2a4 4 0 0 1 0 5.6"></path>
+    <path class="som__onda" d="M18 6.8a7.5 7.5 0 0 1 0 10.4"></path>
+    <path class="som__corte" d="M16 9.5l5 5m0-5l-5 5"></path>
+  </svg>
+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="menu.js"></script>
+<script src="pix.js"></script>
+<script src="polen.js"></script>
+<script src="musica.js"></script>
+<script src="editor-remendo.js"></script>
+<script src="editor-deposito.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

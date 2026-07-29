@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nossa História — Entre Videiras e Promessas</title>
+
+<!-- marca que há JS: sem isso as fotos ficariam invisíveis se o script não rodar -->
+<script>document.documentElement.classList.add('js');</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<header class="cabecalho cabecalho--claro">
+  <nav class="cabecalho__nav cabecalho__nav--esq" aria-label="Principal">
+    <a class="link-simples" href="nossa-historia.html" aria-current="page">Nossa História</a>
+    <a class="link-simples" href="contato.html">Contatos</a>
+    <a class="link-simples" href="viagem-e-estada.html">Viagem e Estadia</a>
+  </nav>
+
+  <div class="cabecalho__titulo"><a class="link-simples" href="index.html">Entre Videiras e Promessas</a></div>
+
+  <span class="cabecalho__pagina">Nossa História</span>
+
+  <nav class="cabecalho__nav cabecalho__nav--dir" aria-label="Presentes e fotos">
+    <a class="link-simples" href="lista-de-casamento.html">Presentes</a>
+    <a class="link-simples" href="portfolio.html">Portfolio</a>
+    <a class="link-simples" href="confirmar-presenca.html">Confirmar presença</a>
+  </nav>
+
+  <button class="hamburguer" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+    <span></span><span></span>
+  </button>
+</header>
+
+<nav class="menu" id="menu" data-aberto="false" aria-label="Menu">
+  <a href="nossa-historia.html">Nossa História</a>
+  <a href="contato.html">Contatos</a>
+  <a href="viagem-e-estada.html">Viagem e Estadia</a>
+  <a class="menu__marca" href="index.html">Entre Videiras e Promessas</a>
+  <a href="lista-de-casamento.html">Presentes</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="confirmar-presenca.html">Confirmar presença</a>
+</nav>
+
+<main>
+
+  <section data-ancora="1" class="abertura grade grade--borda">
+    <h1 class="abertura__titulo tipo-h2" data-texto="nossa-historia-t1">Como tudo começou</h1>
+    <figure class="abertura__foto">
+      <img src="assets/nossa-historia-1-2.jpg" alt="Gabriel e Jaqueline abraçados, com o Pão de Açúcar ao fundo" style="object-position:50% 74%" data-editavel="nossa-historia-1">
+    </figure>
+  </section>
+
+  <div class="trilha">
+  <svg class="trilha__videira" viewBox="0 0 60 1000" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M30 0C6 130 54 236 26 352 2 452 56 556 30 668 6 772 52 880 28 1000"
+          stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+  </svg>
+
+  <section data-ancora="2" class="citacao grade grade--borda">
+    <blockquote class="citacao__texto tipo-h2" data-texto="nossa-historia-t2">“A primeira vez que eu a vi, meu coração fervilhou e fiquei tão ansioso e feliz. Parecia que a conhecia desde sempre.”</blockquote>
+    <p class="citacao__autor" data-texto="nossa-historia-t3">— Gabriel</p>
+  </section>
+
+  <section data-ancora="3" class="citacao citacao--direita grade grade--borda">
+    <blockquote class="citacao__texto tipo-h2" data-texto="nossa-historia-t4">“Lore ipsum dolor”</blockquote>
+    <p class="citacao__autor" data-texto="nossa-historia-t5">— Jaqueline</p>
+  </section>
+
+  <section data-ancora="4" class="retrato grade">
+    <figure class="retrato__foto">
+      <img src="assets/nossa-historia-2-1.jpg" alt="" data-editavel="nossa-historia-2">
+      <p class="retrato__nome tipo-h2" data-texto="nossa-historia-t6">Jaqueline e Gabriel</p>
+    </figure>
+    <div class="retrato__texto">
+      <p class="retrato__risco" aria-hidden="true">—</p>
+      <p class="retrato__paragrafo texto-grande" data-texto="nossa-historia-t7">Jaqueline e Gabriel se conheceram quando cada um estava com os amigos num bar de Phoenix. Após um chamar a atenção do outro e passarem o resto da noite descobrindo o quanto têm em comum, os dois começaram a namorar. Dois anos depois, somos melhores amigos, caras-metades e parceiros na vida. Estamos finalmente prontos para oficializar!</p>
+    </div>
+  </section>
+  </div>
+
+  <section data-ancora="5" class="resto grade grade--borda">
+    <h2 class="resto__titulo" data-texto="nossa-historia-t8">E o resto é história</h2>
+    <p class="resto__texto" data-texto="nossa-historia-t9">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud.</p>
+  </section>
+
+  <section data-ancora="6" class="galeria">
+    <div class="galeria__janela">
+      <div class="galeria__trilho" id="trilho">
+        <figure class="galeria__quadro"><img src="assets/Stocksy_comp_701178.jpg" alt="" loading="lazy"></figure>
+        <figure class="galeria__quadro"><img src="assets/Stocksy_comp_701203.jpg" alt="" loading="lazy"></figure>
+        <figure class="galeria__quadro"><img src="assets/Stocksy_comp_701172.jpg" alt="" loading="lazy"></figure>
+        <figure class="galeria__quadro"><img src="assets/Stocksy_comp_701177.jpg" alt="" loading="lazy"></figure>
+      </div>
+    </div>
+
+    <div class="galeria__controles">
+      <button class="galeria__seta galeria__seta--anterior" type="button" aria-label="Slide anterior" aria-controls="trilho">
+        <svg viewBox="0 0 60 30" aria-hidden="true">
+          <path d="M15.9,23.7L7.1,15l8.7-8.7"></path>
+          <path d="M52.9,15H8.5"></path>
+        </svg>
+      </button>
+      <button class="galeria__seta galeria__seta--proxima" type="button" aria-label="Próximo slide" aria-controls="trilho">
+        <svg viewBox="0 0 60 30" aria-hidden="true">
+          <path d="M15.9,23.7L7.1,15l8.7-8.7"></path>
+          <path d="M52.9,15H8.5"></path>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <div class="grade grade--borda rodape__grade">
+    <p class="rodape__links">
+      <a class="link-sublinhado" href="contato.html">Contatos</a>
+    </p>
+  </div>
+</footer>
+
+<audio id="musica" preload="auto"></audio>
+<button class="som" id="som" type="button" aria-pressed="false" aria-label="Silenciar a música">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"></path>
+    <path class="som__onda" d="M15.5 9.2a4 4 0 0 1 0 5.6"></path>
+    <path class="som__onda" d="M18 6.8a7.5 7.5 0 0 1 0 10.4"></path>
+    <path class="som__corte" d="M16 9.5l5 5m0-5l-5 5"></path>
+  </svg>
+</button>
+
+<script src="menu.js"></script>
+<script src="galeria.js"></script>
+<script src="historia.js"></script>
+<script src="polen.js"></script><script src="musica.js"></script>
+<script src="editor-remendo.js"></script>
+<script src="editor-deposito.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirmar presença — Entre Videiras e Promessas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<header class="cabecalho">
+  <nav class="cabecalho__nav cabecalho__nav--esq" aria-label="Principal">
+    <a class="link-simples" href="nossa-historia.html">Nossa História</a>
+    <a class="link-simples" href="contato.html">Contatos</a>
+    <a class="link-simples" href="viagem-e-estada.html">Viagem e Estadia</a>
+  </nav>
+
+  <div class="cabecalho__titulo"><a class="link-simples" href="index.html">Entre Videiras e Promessas</a></div>
+
+  <span class="cabecalho__pagina">Confirmar presença</span>
+
+  <nav class="cabecalho__nav cabecalho__nav--dir" aria-label="Presentes e fotos">
+    <a class="link-simples" href="lista-de-casamento.html">Presentes</a>
+    <a class="link-simples" href="portfolio.html">Portfolio</a>
+    <a class="link-simples" href="confirmar-presenca.html" aria-current="page">Confirmar presença</a>
+  </nav>
+
+  <button class="hamburguer" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+    <span></span><span></span>
+  </button>
+</header>
+
+<nav class="menu" id="menu" data-aberto="false" aria-label="Menu">
+  <a href="nossa-historia.html">Nossa História</a>
+  <a href="contato.html">Contatos</a>
+  <a href="viagem-e-estada.html">Viagem e Estadia</a>
+  <a class="menu__marca" href="index.html">Entre Videiras e Promessas</a>
+  <a href="lista-de-casamento.html">Presentes</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="confirmar-presenca.html">Confirmar presença</a>
+</nav>
+
+<main>
+
+  <section data-ancora="1" class="capa capa--rsvp grade grade--borda">
+    <div class="capa__fundo">
+      <img src="assets/Stocksy_comp_701178.jpg" alt="" data-editavel="confirmar-presenca-1">
+      <div class="capa__veu capa__veu--oliva"></div>
+    </div>
+    <div class="capa__conteudo">
+      <h1 data-texto="confirmar-presenca-t1">Confirmar presença</h1>
+      <p class="capa__legenda" data-texto="confirmar-presenca-t2">Diga se vem, e a gente guarda a cadeira.</p>
+    </div>
+  </section>
+
+  <section data-ancora="2" class="rsvp">
+    <div class="grade grade--borda">
+      <h2 class="rsvp__titulo" data-texto="confirmar-presenca-t3">Vamos contar com você?</h2>
+      <p class="rsvp__texto" data-texto="confirmar-presenca-t4">Preencha os campos abaixo.</p>
+    </div>
+
+    <form class="grade grade--borda rsvp__form" id="rsvp">
+      <p class="campo campo--largo" data-texto="confirmar-presenca-t5">
+        <label class="campo__rotulo" for="nome">Seu nome</label>
+        <input class="campo__entrada" type="text" id="nome" name="nome" autocomplete="name" required>
+      </p>
+
+      <fieldset class="campo campo--metade">
+        <legend class="campo__rotulo">Você vai?</legend>
+        <label class="opcao"><input type="radio" name="resposta" value="vou" checked><span>Vou, sim</span></label>
+        <label class="opcao"><input type="radio" name="resposta" value="nao"><span>Não vou conseguir</span></label>
+      </fieldset>
+
+      <fieldset class="campo campo--metade" id="campo-companhia">
+        <legend class="campo__rotulo">Quem vai?</legend>
+        <label class="opcao"><input type="radio" name="companhia" value="so-eu" checked><span>Somente eu</span></label>
+        <label class="opcao"><input type="radio" name="companhia" value="mais"><span>Vou levar mais pessoas</span></label>
+      </fieldset>
+
+      <p class="campo campo--curto" id="campo-quantidade" hidden data-texto="confirmar-presenca-t6">
+        <label class="campo__rotulo" for="quantidade">Quantas pessoas a mais</label>
+        <input class="campo__entrada" type="number" id="quantidade" name="quantidade" min="1" max="10" value="1" inputmode="numeric">
+      </p>
+
+      <div class="campo campo--largo" id="campo-nomes" hidden>
+        <span class="campo__rotulo">Nome de quem vem com você</span>
+        <div class="acompanhantes" id="acompanhantes"></div>
+      </div>
+
+      <p class="campo campo--largo" data-texto="confirmar-presenca-t7">
+        <label class="campo__rotulo" for="recado">Um recado, se quiser</label>
+        <textarea class="campo__entrada campo__entrada--alto" id="recado" name="recado" rows="3"></textarea>
+      </p>
+
+      <button class="botao botao--escuro rsvp__botao" type="submit" id="rsvp-enviar">Confirmar presença</button>
+
+      <p class="rsvp__estado" id="rsvp-estado" role="status" aria-live="polite" hidden data-texto="confirmar-presenca-t8"></p>
+    </form>
+
+    <div class="grade grade--borda">
+      <p class="rsvp__rodape" data-texto="confirmar-presenca-t9">Prefere falar direto? O nosso <a class="link-sublinhado" href="contato.html">WhatsApp, Instagram e e-mail</a> estão todos aqui.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <div class="grade grade--borda rodape__grade">
+    <p class="rodape__links">
+      <a class="link-sublinhado" href="contato.html">Contatos</a>
+    </p>
+  </div>
+</footer>
+
+<audio id="musica" preload="auto"></audio>
+<button class="som" id="som" type="button" aria-pressed="false" aria-label="Silenciar a música">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"></path>
+    <path class="som__onda" d="M15.5 9.2a4 4 0 0 1 0 5.6"></path>
+    <path class="som__onda" d="M18 6.8a7.5 7.5 0 0 1 0 10.4"></path>
+    <path class="som__corte" d="M16 9.5l5 5m0-5l-5 5"></path>
+  </svg>
+</button>
+
+<script src="menu.js"></script>
+<script src="rsvp.js"></script>
+<script src="polen.js"></script>
+<script src="musica.js"></script>
+<script src="editor-remendo.js"></script>
+<script src="editor-deposito.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

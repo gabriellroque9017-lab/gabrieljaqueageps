@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viagem e Estadia — Entre Videiras e Promessas</title>
+
+<!-- marca que há JS: sem isso as fotos ficariam cobertas se o script não rodar -->
+<script>document.documentElement.classList.add('js');</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<header class="cabecalho">
+  <nav class="cabecalho__nav cabecalho__nav--esq" aria-label="Principal">
+    <a class="link-simples" href="nossa-historia.html">Nossa História</a>
+    <a class="link-simples" href="contato.html">Contatos</a>
+    <a class="link-simples" href="viagem-e-estada.html" aria-current="page">Viagem e Estadia</a>
+  </nav>
+
+  <div class="cabecalho__titulo"><a class="link-simples" href="index.html">Entre Videiras e Promessas</a></div>
+
+  <span class="cabecalho__pagina">Viagem e Estadia</span>
+
+  <nav class="cabecalho__nav cabecalho__nav--dir" aria-label="Presentes e fotos">
+    <a class="link-simples" href="lista-de-casamento.html">Presentes</a>
+    <a class="link-simples" href="portfolio.html">Portfolio</a>
+    <a class="link-simples" href="confirmar-presenca.html">Confirmar presença</a>
+  </nav>
+
+  <button class="hamburguer" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+    <span></span><span></span>
+  </button>
+</header>
+
+<nav class="menu" id="menu" data-aberto="false" aria-label="Menu">
+  <a href="nossa-historia.html">Nossa História</a>
+  <a href="contato.html">Contatos</a>
+  <a href="viagem-e-estada.html">Viagem e Estadia</a>
+  <a class="menu__marca" href="index.html">Entre Videiras e Promessas</a>
+  <a href="lista-de-casamento.html">Presentes</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="confirmar-presenca.html">Confirmar presença</a>
+</nav>
+
+<main>
+
+  <section data-ancora="1" class="capa capa--viagem grade grade--borda">
+    <div class="capa__fundo">
+      <img src="assets/Stocksy_comp_701176.jpg" alt="" data-editavel="viagem-e-estada-1">
+      <div class="capa__veu capa__veu--salvia"></div>
+    </div>
+    <div class="capa__conteudo">
+      <h1 data-texto="viagem-e-estada-t1">Viagem e Estadia</h1>
+      <p class="capa__legenda" data-texto="viagem-e-estada-t2">Vassouras fica no Vale do Café, a 117 km do Rio de Janeiro.</p>
+    </div>
+  </section>
+
+  <section data-ancora="2" class="rotas">
+    <div class="grade grade--borda">
+      <h2 class="rotas__titulo" data-texto="viagem-e-estada-t3">Como chegar</h2>
+
+      <p class="rotas__texto" data-texto="viagem-e-estada-t4">Saindo do centro de Vassouras, a Vila Botané fica no bairro Ponte Funda, na Rua Luiz Francisco de Souza, 555.</p>
+
+      <a class="botao botao--escuro rotas__botao" href="https://www.google.com/maps/dir/?api=1&amp;origin=Vassouras,+RJ&amp;destination=-22.4180665,-43.6448295" target="_blank" rel="noopener">Traçar a rota</a>
+    </div>
+  </section>
+
+  <section data-ancora="3" class="colunas">
+    <div class="grade grade--borda">
+      <h2 class="colunas__titulo" data-texto="viagem-e-estada-t5">Hospedagens recomendadas</h2>
+    </div>
+
+    <div class="grade grade--borda colunas__grade">
+      <div class="coluna coluna--1">
+        <figure class="coluna__foto">
+          <img src="assets/hibisco-1.jpg" alt="Piscina e área de convivência da Vila Hibisco, com as montanhas ao fundo" loading="lazy" style="object-position:48% 55%" data-editavel="viagem-e-estada-2">
+          <img src="assets/hibisco-2.jpg" alt="" loading="lazy" style="object-position:50% 55%" data-editavel="viagem-e-estada-3">
+          <img src="assets/hibisco-3.jpg" alt="" loading="lazy" data-editavel="viagem-e-estada-4">
+          <img src="assets/hibisco-4.jpg" alt="" loading="lazy" style="object-position:50% 60%" data-editavel="viagem-e-estada-5">
+          <figcaption class="coluna__rotulo" data-texto="viagem-e-estada-t6">
+            <span class="coluna__tipo">Pousada e apart</span>
+            <h4 class="coluna__titulo" data-texto="viagem-e-estada-t7"><a class="coluna__link" href="https://www.vilahibisco.com.br/" target="_blank" rel="noopener">Vila Hibisco</a></h4>
+          </figcaption>
+        </figure>
+        <p class="coluna__detalhe" data-texto="viagem-e-estada-t8">
+          <a class="coluna__rota" href="https://www.google.com/maps/dir/?api=1&amp;destination=Rua+Abreu+C%C3%A9sar%2C+55+-+Centro%2C+Vassouras+-+RJ" target="_blank" rel="noopener">Rua Abreu César, 55<br>Centro, Vassouras - RJ</a><br>(24) 99315-0006
+        </p>
+        <p class="coluna__distancia" data-texto="viagem-e-estada-t9">2,9 km da Vila Botané &middot; 4 min de carro</p>
+      </div>
+
+      <div class="coluna coluna--2">
+        <figure class="coluna__foto">
+          <img src="assets/zira-1.jpg" alt="Casa do Vale Zirá à noite, com fogueira acesa no gramado" loading="lazy" style="object-position:50% 42%" data-editavel="viagem-e-estada-6">
+          <img src="assets/zira-2.jpg" alt="" loading="lazy" style="object-position:55% 50%" data-editavel="viagem-e-estada-7">
+          <img src="assets/zira-3.jpg" alt="" loading="lazy" data-editavel="viagem-e-estada-8">
+          <img src="assets/zira-4.jpg" alt="" loading="lazy" style="object-position:50% 55%" data-editavel="viagem-e-estada-9">
+          <figcaption class="coluna__rotulo" data-texto="viagem-e-estada-t10">
+            <span class="coluna__tipo">Refúgio na natureza</span>
+            <h4 class="coluna__titulo" data-texto="viagem-e-estada-t11"><a class="coluna__link" href="https://valezira.com.br/" target="_blank" rel="noopener">Vale Zirá</a></h4>
+          </figcaption>
+        </figure>
+        <p class="coluna__detalhe" data-texto="viagem-e-estada-t12">
+          <a class="coluna__rota" href="https://www.google.com/maps/dir/?api=1&amp;destination=Estrada+dos+Matac%C3%A3es%2C+4800+-+Vassouras+-+RJ" target="_blank" rel="noopener">Estrada dos Matacães, 4800<br>RJ-121, km 21, Vassouras - RJ</a><br>(24) 99271-2570
+        </p>
+        <p class="coluna__distancia" data-texto="viagem-e-estada-t13">8 km da Vila Botané &middot; 10 min de carro</p>
+      </div>
+
+      <div class="coluna coluna--3">
+        <figure class="coluna__foto">
+          <img src="assets/amalia-1.jpg" alt="Fachada do Hotel Santa Amália, com varandas e o jardim à frente" loading="lazy" style="object-position:50% 50%" data-editavel="viagem-e-estada-10">
+          <img src="assets/amalia-2.jpg" alt="" loading="lazy" style="object-position:50% 60%" data-editavel="viagem-e-estada-11">
+          <img src="assets/amalia-3.jpg" alt="" loading="lazy" style="object-position:50% 55%" data-editavel="viagem-e-estada-12">
+          <img src="assets/amalia-4.jpg" alt="" loading="lazy" style="object-position:50% 45%" data-editavel="viagem-e-estada-13">
+          <figcaption class="coluna__rotulo" data-texto="viagem-e-estada-t14">
+            <span class="coluna__tipo">Hotel</span>
+            <h4 class="coluna__titulo" data-texto="viagem-e-estada-t15"><a class="coluna__link" href="https://hotelsantaamalia.com.br/" target="_blank" rel="noopener">Santa Amália</a></h4>
+          </figcaption>
+        </figure>
+        <p class="coluna__detalhe" data-texto="viagem-e-estada-t16">
+          <a class="coluna__rota" href="https://www.google.com/maps/dir/?api=1&amp;destination=Av.+Sebasti%C3%A3o+Manoel+Furtado%2C+526+-+Vassouras+-+RJ" target="_blank" rel="noopener">Av. Sebastião Manoel Furtado, 526<br>Santa Amália, Vassouras - RJ</a><br>(24) 2471-1200
+        </p>
+        <p class="coluna__distancia" data-texto="viagem-e-estada-t17">4,1 km da Vila Botané &middot; 5 min de carro</p>
+      </div>
+    </div>
+  </section>
+
+  <section data-ancora="4" class="mapa">
+    <div class="grade grade--borda">
+      <h2 class="mapa__titulo" data-texto="viagem-e-estada-t18">No mapa</h2>
+    </div>
+
+    <div class="mapa__moldura">
+      <div class="mapa__tela" id="mapa"></div>
+    </div>
+
+    <div class="grade grade--borda">
+      <p class="mapa__legenda" data-texto="viagem-e-estada-t19">Para traçar o trajeto até qualquer uma delas, toque no endereço logo acima.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <div class="grade grade--borda rodape__grade">
+    <p class="rodape__links">
+      <a class="link-sublinhado" href="contato.html">Contatos</a>
+    </p>
+  </div>
+</footer>
+
+<audio id="musica" preload="auto"></audio>
+<button class="som" id="som" type="button" aria-pressed="false" aria-label="Silenciar a música">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"></path>
+    <path class="som__onda" d="M15.5 9.2a4 4 0 0 1 0 5.6"></path>
+    <path class="som__onda" d="M18 6.8a7.5 7.5 0 0 1 0 10.4"></path>
+    <path class="som__corte" d="M16 9.5l5 5m0-5l-5 5"></path>
+  </svg>
+</button>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="menu.js"></script>
+<script src="aquarela.js"></script>
+<script src="mapa.js"></script>
+<script src="polen.js"></script><script src="musica.js"></script>
+<script src="editor-remendo.js"></script>
+<script src="editor-deposito.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

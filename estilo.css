@@ -1,0 +1,1337 @@
+/* ============================================================
+   Tokens — valores medidos do site original
+   Tipografia: 16px + k·vw no desktop.
+   Abaixo de 768px a escala congela no valor equivalente a 900px.
+   ============================================================ */
+:root{
+  --ref: 100vw;
+
+  --creme:  #FFFDC1;
+  --oliva:  #2E3105;
+  --marfim: #FEFFE9;
+  --lima:   #DFE777;
+  --salvia: #B8BC7F;
+
+  --fs-h1:     calc(16px + 0.0360 * var(--ref));
+  --fs-h2:     calc(16px + 0.0216 * var(--ref));
+  --fs-h3:     calc(16px + 0.0144 * var(--ref));
+  --fs-grande: calc(16px + 0.0060 * var(--ref));
+  --fs-corpo:  calc(16px + 0.0024 * var(--ref));
+  --fs-titulo: calc(16px + 0.0120 * var(--ref));
+  --fs-menu:   calc(16px + 0.0198 * var(--ref));
+
+  --lh-h1: 1.232;
+  --lh-h2: 1.2992;
+  --lh-h3: 1.3328;
+  --lh-h4: 1.3877;
+  --lh-texto: 1.6;
+
+  --margem-secao: 8vw;
+  --margem-borda: 4vw;
+  --inset-convite: 4vw;   /* não muda no mobile, ao contrário das outras */
+  --gap-coluna: 11px;
+
+  --altura-botao: calc(14.5px + 3.3654vw);
+  --altura-botao-g: calc(12.6px + 3.8462vw);
+  --altura-foto:  calc(195.7px + 29.327vw);
+  --recuo-titulo: calc(34.85px + 5.2885vw);
+
+  --display: 'Cormorant Garamond', 'Orpheus Pro', 'Adobe Garamond Pro', Georgia, serif;
+  --corpo:   'EB Garamond', 'Adobe Garamond Pro', Garamond, Georgia, serif;
+
+  /* Borda de papel rasgado: retângulo de lados levemente irregulares.
+     preserveAspectRatio="none" faz a forma esticar até o tamanho da foto. */
+  --borda-organica:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M1.6 2.4C18 .7 34 3.4 51 1.6c17-1.8 32 1.4 47.2.6 1.4 16-1 32 .4 48.2 1.4 16.4-1.2 32-.6 48-16.6 1.8-33-1-49.6.8-16.6 1.8-31-1.2-46.8-.4-1.6-16 .8-32-.6-48.4C-.4 34 2 18 1.6 2.4Z" fill="white"/></svg>');
+
+  /* Vinco de aquarela: preenche o topo e termina numa borda molhada. */
+  --vinco-aquarela:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0 0h100v79.5c-7.4 5.6-14.6-2.4-22.4 1.8-7.8 4.2-13.6-3.6-21.6.6-8 4.2-14.4-3-22.4 1.2C26 86.6 20 79.4 12.6 83 7.4 85.6 3.6 80.8 0 82.4Z" fill="white"/></svg>');
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+/* as fotos entram ampliadas antes de serem reveladas; a moldura recorta,
+   mas ainda sobrava uma fresta de rolagem lateral */
+html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }
+
+body{
+  margin:0;
+  background:var(--creme);
+  color:var(--oliva);
+  font-family:var(--corpo);
+  font-size:var(--fs-corpo);
+  line-height:var(--lh-texto);
+  font-variant-numeric:lining-nums;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+h1,h2,h3,h4,p{ margin:0; }
+img{ display:block; }
+
+h1,.tipo-h1{ font-family:var(--display); font-weight:400; font-size:var(--fs-h1); line-height:var(--lh-h1); }
+h2,.tipo-h2{ font-family:var(--display); font-weight:400; font-size:var(--fs-h2); line-height:var(--lh-h2); }
+h3,.tipo-h3{ font-family:var(--display); font-weight:400; font-size:var(--fs-h3); line-height:var(--lh-h3); }
+h4{ font-family:var(--display); font-weight:400; font-size:var(--fs-corpo); line-height:var(--lh-h4); }
+.texto-grande{ font-size:var(--fs-grande); line-height:var(--lh-texto); }
+
+/* grade de 24 colunas com gap de 11px, igual à do original */
+.grade{
+  display:grid;
+  grid-template-columns:repeat(24,1fr);
+  column-gap:var(--gap-coluna);
+  padding-inline:var(--margem-secao);
+}
+.grade--borda{ padding-inline:var(--margem-borda); }
+
+/* ============================================================
+   Links e botões
+   ============================================================ */
+a{ color:inherit; }
+
+.link-sublinhado{
+  text-decoration:underline;
+  text-decoration-thickness:1px;
+  text-underline-offset:.2em;
+  transition:opacity .25s cubic-bezier(.2,.7,.3,1);
+}
+.link-sublinhado:hover{ opacity:.62; }
+.link-sublinhado:active{ opacity:.45; }
+
+.link-simples{ text-decoration:none; transition:opacity .25s cubic-bezier(.2,.7,.3,1); }
+.link-simples:hover{ opacity:.62; }
+.link-simples:active{ opacity:.45; }
+
+:focus-visible{ outline:2px solid currentColor; outline-offset:4px; }
+
+.botao{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:var(--altura-botao);
+  padding-inline:2.004em;
+  font-family:var(--display);
+  font-weight:500;
+  font-size:16px;
+  line-height:1.2;
+  letter-spacing:.04em;
+  text-decoration:none;
+  border:0;
+  transition:opacity .25s cubic-bezier(.2,.7,.3,1), transform .25s cubic-bezier(.2,.7,.3,1);
+}
+.botao:hover{ opacity:.86; }
+.botao:active{ transform:translateY(1px); }
+.botao--escuro{ background:var(--oliva); color:var(--marfim); }
+.botao--lima{   background:var(--lima);  color:var(--oliva); }
+.botao--alto{   min-height:var(--altura-botao-g); }
+
+/* ============================================================
+   Cabeçalho — sobreposto à imagem de topo
+   ============================================================ */
+.cabecalho{
+  position:absolute;
+  inset:0 0 auto 0;
+  z-index:20;
+  height:calc(73.8px + 5.2885vw);
+  /* colunas laterais iguais deixam o título exatamente no centro da página */
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  padding-inline:var(--margem-borda);
+  color:var(--marfim);
+}
+
+/* space-between + um item vazio de largura zero na ponta faz os vãos entre
+   os links e o vão até o título ficarem todos iguais */
+.cabecalho__nav{ display:flex; font-size:var(--fs-corpo); }
+.cabecalho__nav--esq{ grid-column:1; justify-content:space-between; }
+.cabecalho__nav--esq::after{ content:""; }
+.cabecalho__nav--dir{ grid-column:3; justify-content:space-between; }
+.cabecalho__nav--dir::before{ content:""; }
+.cabecalho__nav a{ padding-block:.1em; }
+/* página ativa: o original desenha o traço com um gradiente de fundo,
+   não com text-decoration — fica mais baixo que um sublinhado comum */
+.cabecalho__nav a[aria-current="page"]{
+  background-image:linear-gradient(currentColor,currentColor);
+  background-size:1px 1px;
+  background-position:0 calc(100% - .1em);
+  background-repeat:repeat-x;
+}
+
+/* Só o nome do casal usa a caligrafia. Pinyon Script é uma roundhand
+   inglesa da mesma família de desenho da Bickham Script Pro: mesmo
+   contraste alto entre cheios e finos, mesmas hastes alongadas.
+   Precisa de corpo maior que a serifada para ter a mesma presença. */
+.cabecalho__titulo{
+  grid-column:2;
+  font-family:'Pinyon Script', 'Bickham Script Pro', var(--display);
+  font-weight:400;
+  font-size:calc(16px + 0.0195 * var(--ref));
+  line-height:1.1;
+  white-space:nowrap;
+}
+
+/* No desktop o topo mostra o nome do casal e os seis links.
+   Quando o menu vira botão, o nome do casal dá lugar ao nome da página
+   em que a pessoa está — assim ela sempre sabe onde se encontra. */
+.cabecalho__pagina{ display:none; }
+
+.hamburguer{
+  display:none;
+  margin-left:auto;
+  width:50px;
+  height:37px;
+  padding:0;
+  background:none;
+  border:0;
+  cursor:pointer;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:9px;
+}
+.hamburguer span{
+  display:block;
+  width:30px;
+  height:1px;
+  background:var(--marfim);
+  transition:transform .3s cubic-bezier(.2,.7,.3,1), opacity .3s cubic-bezier(.2,.7,.3,1);
+}
+.hamburguer[aria-expanded="true"] span:first-child{ transform:translateY(5px) rotate(45deg); }
+.hamburguer[aria-expanded="true"] span:last-child{ transform:translateY(-5px) rotate(-45deg); }
+
+.menu{
+  position:fixed;
+  inset:0;
+  z-index:15;
+  background:var(--oliva);
+  color:var(--marfim);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-top:365px;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .35s cubic-bezier(.2,.7,.3,1);
+}
+.menu[data-aberto="true"]{ opacity:1; visibility:visible; }
+.menu a{
+  font-family:var(--display);
+  font-weight:400;
+  font-size:var(--fs-menu);
+  line-height:1;
+  text-decoration:none;
+  margin-bottom:24px;
+}
+
+/* São seis links e um título em caligrafia, que é largo. Em 1150px os vãos
+   chegam a 18px; abaixo disso os rótulos começam a se encostar e o cabeçalho
+   recolhe para título + hambúrguer.
+   (O resto do layout só vira mobile em 768px.) */
+@media (max-width:1149px){
+  .cabecalho{ display:flex; }
+  .cabecalho__nav{ display:none; }
+  .cabecalho__titulo{ display:none; }
+  .hamburguer{ display:flex; }
+
+  .cabecalho__pagina{
+    display:block;
+    font-family:var(--display);
+    font-weight:400;
+    font-size:clamp(21px, 2.2vw, 26px);
+    line-height:1.2;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  /* na inicial o nome da página é o próprio nome do casal */
+  .cabecalho__pagina--marca{
+    font-family:'Pinyon Script', var(--display);
+    font-size:clamp(26px, 3vw, 34px);
+  }
+
+  /* precisa vencer .menu a, que também é classe + elemento */
+  .menu a.menu__marca{
+    font-family:'Pinyon Script', var(--display);
+    /* a caligrafia lê menor que a serifa no mesmo corpo, mas o nome é longo:
+       o min() aumenta o corpo sem deixar encostar nas laterais da tela */
+    font-size:min(calc(var(--fs-menu) * 1.06), 7.2vw);
+    padding-block:.1em;
+  }
+
+  /* páginas de capa clara usam tinta escura no cabeçalho; com o menu aberto
+     o painel verde fica atrás dele e o X sumiria */
+  body[data-menu="aberto"] .cabecalho--claro,
+  body[data-menu="aberto"] .cabecalho--claro .cabecalho__pagina{ color:var(--creme); }
+  body[data-menu="aberto"] .cabecalho--claro .hamburguer span{ background:var(--creme); }
+
+  body[data-menu="aberto"]{ overflow:hidden; }
+}
+
+/* ============================================================
+   Botão de som — fixo, discreto, fora do fluxo do layout
+   ============================================================ */
+.som{
+  position:fixed;
+  right:calc(10px + 1vw);
+  bottom:calc(10px + 1vw);
+  z-index:30;
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:1px solid rgba(46,49,5,.18);
+  border-radius:50%;
+  background:var(--creme);
+  color:var(--oliva);
+  cursor:pointer;
+  opacity:.55;
+  transition:opacity .5s cubic-bezier(.22,.61,.36,1), transform .5s cubic-bezier(.22,.61,.36,1);
+}
+.som:hover{ opacity:1; }
+.som:active{ transform:scale(.94); }
+
+.som svg{ width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; }
+/* as ondas somem e o corte aparece quando está no mudo */
+.som__onda{ transition:opacity .35s ease; }
+.som__corte{ opacity:0; transition:opacity .35s ease; }
+.som[data-mudo="true"] .som__onda{ opacity:0; }
+.som[data-mudo="true"] .som__corte{ opacity:1; }
+
+/* ============================================================
+   Textos posicionados à mão
+   ------------------------------------------------------------
+   A posição é guardada em % da seção onde o texto foi solto, não em
+   pixels da tela: assim ele acompanha a mudança de proporção entre o
+   desktop e o celular em vez de escorregar para fora.
+   O corpo da letra vem em --tam (o valor do desktop) e encolhe no
+   celular na mesma razão que o resto da tipografia do site: 0,75.
+   ============================================================ */
+main [data-ancora]{ position:relative; }
+
+.texto-livre{
+  position:absolute;
+  margin:0;
+  z-index:6;
+  transform:translate(-50%, -50%);
+  max-width:min(78%, 44ch);
+  text-align:center;
+  line-height:1.24;
+  color:var(--oliva);
+  font-size:calc(var(--tam, 24) * 1px);
+  /* não rouba o clique de links e botões que estejam embaixo */
+  pointer-events:none;
+}
+.texto-livre[data-fonte="display"]{ font-family:var(--display); }
+.texto-livre[data-fonte="corpo"]{ font-family:var(--corpo); line-height:1.5; }
+.texto-livre[data-fonte="caligrafia"]{ font-family:'Pinyon Script', var(--display); line-height:1.1; }
+.texto-livre[data-cor="claro"]{ color:var(--marfim); }
+
+@media (max-width:767px){
+  .texto-livre{ font-size:calc(var(--tam, 24) * 0.75px); max-width:88%; }
+}
+
+/* Largura ajustada à mão. Também em % — do espaço que o elemento já tinha —
+   para a caixa não estourar o layout numa tela mais estreita.
+   No celular a regra é ignorada: lá a coluna é única e apertar mais o texto
+   só criaria linhas de duas palavras. */
+@media (min-width:768px){
+  .tem-largura{ max-width:calc(var(--larg, 100) * 1%); margin-inline:auto; }
+  .texto-livre.tem-largura{ width:calc(var(--larg, 100) * 1%); max-width:none; margin-inline:0; }
+}
+
+/* ============================================================
+   Capa — a imagem de topo de cada página
+   ============================================================ */
+.capa{
+  position:relative;
+  color:var(--marfim);
+  text-align:center;
+  overflow:hidden;
+}
+.capa__fundo{ position:absolute; inset:0; }
+.capa__fundo img{ width:100%; height:100%; object-fit:cover; }
+.capa__veu{ position:absolute; inset:0; opacity:.15; }
+.capa__veu--oliva{ background:var(--oliva); }
+.capa__veu--salvia{ background:var(--salvia); }
+
+/* A capa da home é uma foto de praia — areia e roupa branca, luminância 180.
+   O texto creme desaparecia sobre ela. Este segundo véu escurece só onde o
+   texto passa, deixando o topo e a base quase limpos para a foto respirar. */
+.capa__veu--leitura{
+  opacity:1;
+  background:
+    /* faixa curta atrás do cabeçalho: a camiseta branca engolia os links.
+       Medida em px, não em %, para acompanhar a altura fixa do cabeçalho. */
+    linear-gradient(to bottom, rgba(28,30,4,.55) 0, rgba(28,30,4,0) 190px),
+    /* e o véu longo, onde passam os nomes e a data */
+    linear-gradient(
+      to bottom,
+      rgba(28,30,4,.22) 0%,
+      rgba(28,30,4,.52) 34%,
+      rgba(28,30,4,.58) 72%,
+      rgba(28,30,4,.34) 100%
+    );
+}
+.capa__conteudo{ position:relative; grid-column:4 / 22; }
+
+/* home */
+.capa--home{
+  height:calc(303.3px + 36.298vw);
+  padding-top:calc(113.7px + 7.4519vw);
+}
+.capa--home img{ object-position:50% 64.804%; }
+.capa--home h1{ margin-top:32px; }
+.capa__data{ margin-top:32px; }
+.capa__data strong{ font-weight:700; }
+
+/* páginas internas com título + legenda sobre a foto */
+.capa--viagem,
+.capa--contato,
+.capa--portfolio,
+.capa--rsvp{
+  height:calc(204.5px + 18.5096vw);
+  padding-top:calc(142.8px + 7.9327vw);
+}
+.capa--rsvp img{ object-position:50% 35%; }
+.capa--viagem img{ object-position:50% 50%; }
+.capa--contato img{ object-position:50% 40%; }
+.capa--portfolio img{ object-position:50% 45%; }
+.capa__legenda{ margin-top:31px; }
+
+/* lista de casamento */
+.capa--lista{
+  padding-top:calc(217.3px + 1.9231vw);
+  padding-bottom:calc(63.8px + 2.1635vw);
+}
+.capa--lista img{ object-position:50.3497% 38.6546%; }
+.capa__botao{ position:relative; grid-column:9 / 17; margin-top:max(11px, calc(-148.5px + 15.8654vw)); }
+
+/* ============================================================
+   Cerimônia + Recepção (home)
+   ============================================================ */
+.detalhes{
+  padding-block:calc(10.5px + 9.1346vw);
+  display:flex;
+  flex-direction:column;
+  gap:calc(45.85px + 5.2885vw);
+}
+
+.bloco{
+  display:grid;
+  grid-template-columns:repeat(24,1fr);
+  /* linha 1 = recuo do título + uma linha de h1 */
+  grid-template-rows:calc(54.562px + 9.7237vw) auto;
+  column-gap:var(--gap-coluna);
+  padding-inline:var(--margem-secao);
+  text-align:center;
+}
+
+.bloco__foto{
+  grid-column:1 / 12;
+  grid-row:1 / 3;
+  margin:0;
+  height:var(--altura-foto);
+  overflow:hidden;
+  /* sem isto a cortina de aquarela (::after) se ancora na viewport em vez
+     da foto: virava um lençol do tamanho da tela e sobrava rolagem lateral */
+  position:relative;
+}
+.bloco__foto img{ width:100%; height:100%; object-fit:cover; }
+
+.bloco__titulo{
+  grid-column:14 / 25;
+  grid-row:1;
+  align-self:start;
+  margin-top:var(--recuo-titulo);
+}
+.bloco__texto{
+  grid-column:14 / 25;
+  grid-row:2;
+  align-self:start;
+  padding-top:calc(13.15px + 0.9615vw);
+}
+
+.bloco--invertido .bloco__foto{ grid-column:14 / 25; }
+.bloco--invertido .bloco__titulo,
+.bloco--invertido .bloco__texto{ grid-column:1 / 12; }
+
+.bloco__endereco{ margin-top:32px; }
+.bloco__mapa{ margin-top:16px; }
+
+/* Vestimenta: três regras curtas no lugar de um horário só. A categoria fica
+   um degrau abaixo do "17h" do bloco vizinho — três linhas no corpo dele
+   pesariam mais que a coluna inteira da cerimônia. */
+.vestimenta{ display:flex; flex-direction:column; gap:calc(18px + 0.9615vw); }
+.vestimenta__item{ margin:0; }
+.vestimenta__quem{
+  font-family:var(--display);
+  font-weight:400;
+  font-size:var(--fs-titulo);
+  line-height:var(--lh-h3);
+}
+.vestimenta__oque{
+  margin:0;               /* <dd> vem com recuo de 40px do navegador */
+  font-size:var(--fs-grande);
+  line-height:var(--lh-texto);
+  text-wrap:balance;      /* evita a última palavra sozinha na linha */
+}
+
+/* ------------------------------------------------------------
+   Home: bordas orgânicas e revelação em aquarela.
+   A foto ganha recorte de papel rasgado, e um vinco da cor do fundo
+   escorre para cima descobrindo a imagem — a borda molhada é desenhada
+   na própria máscara, então só transform anima e tudo roda na GPU.
+   Devagar de propósito: 2s de cortina, 2,6s de acomodação da foto.
+   ------------------------------------------------------------ */
+.bloco__foto,
+.convite__moldura,
+.coluna__foto{
+  -webkit-mask-image:var(--borda-organica);
+  mask-image:var(--borda-organica);
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+}
+
+.bloco__foto::after,
+.convite__moldura::after,
+.coluna__foto::after{
+  content:"";
+  position:absolute;
+  left:-2px;
+  right:-2px;
+  bottom:-2px;
+  height:200%;
+  z-index:3;
+  background:var(--creme);
+  -webkit-mask-image:var(--vinco-aquarela);
+  mask-image:var(--vinco-aquarela);
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  pointer-events:none;
+}
+html:not(.js) .bloco__foto::after,
+html:not(.js) .convite__moldura::after,
+html:not(.js) .coluna__foto::after{ display:none; }
+
+.js .bloco__foto.revelada::after,
+.js .convite__moldura.revelada::after,
+.js .coluna__foto.revelada::after{
+  transform:translateY(-100%);
+  transition:transform 2s cubic-bezier(.62,.02,.28,1);
+}
+.js .bloco__foto img,
+.js .convite__moldura > img,
+.js .coluna__foto img{ transform:scale(1.1); }
+.js .bloco__foto.revelada img,
+.js .convite__moldura.revelada > img,
+.js .coluna__foto.revelada img{
+  transform:none;
+  transition:transform 2.6s cubic-bezier(.22,.61,.36,1);
+}
+
+/* ============================================================
+   "Veja como tudo começou" (home)
+   ============================================================ */
+.historia{
+  display:grid;
+  grid-template-columns:repeat(24,1fr);
+  column-gap:var(--gap-coluna);
+  row-gap:12px;
+  padding-inline:var(--margem-secao);
+  padding-top:106px;
+  padding-bottom:105px;
+  text-align:center;
+}
+.historia__titulo{ grid-column:1 / 25; grid-row:1; }
+.historia__risco{
+  grid-row:2;
+  align-self:start;
+  height:26px;
+  display:flex;
+  align-items:center;
+}
+.historia__risco::before{ content:""; display:block; width:100%; height:1px; background:var(--oliva); }
+.historia__risco--esq{ grid-column:1 / 7; }
+.historia__risco--dir{ grid-column:19 / 25; }
+.historia__botao{ grid-column:10 / 16; grid-row:2; }
+
+/* ============================================================
+   Convite final (home)
+   ============================================================ */
+.convite{ padding-block:var(--inset-convite); }
+.convite__moldura{
+  position:relative;
+  margin-inline:var(--inset-convite);
+  height:calc(154.4px + 33.654vw);
+  display:flex;
+  align-items:center;
+  overflow:hidden;
+}
+.convite__moldura > img{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:49.4558% 21.5587%;
+}
+/* sálvia leve só para amarrar a foto à paleta; o escurecimento fica por
+   conta do véu de leitura abaixo, senão o verde puxava a pele para o oliva */
+.convite__veu{ position:absolute; inset:0; background:var(--salvia); opacity:.06; }
+
+/* A foto do convite é praia em contraluz — espuma branca e roupa clara.
+   O texto creme sumia sobre ela. Este véu escurece a faixa central, onde
+   passam "Junte-se a nós" e o botão, e solta as bordas para a foto aparecer.
+   O tom é um escuro quente, não oliva: sobre pele, o verde acinzenta. */
+.convite__veu--leitura{
+  background:linear-gradient(
+    to bottom,
+    rgba(32,25,16,.12) 0%,
+    rgba(32,25,16,.60) 24%,
+    rgba(32,25,16,.66) 74%,
+    rgba(32,25,16,.24) 100%
+  );
+  opacity:1;
+}
+.convite__grade{
+  position:relative;
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(24,1fr);
+  column-gap:var(--gap-coluna);
+  padding-inline:calc(var(--margem-secao) - var(--inset-convite));
+  text-align:center;
+  color:var(--marfim);
+}
+.convite__texto{ grid-column:4 / 22; }
+.convite__texto h2{ margin-top:32px; color:var(--lima); font-size:var(--fs-h1); line-height:var(--lh-h1); }
+.convite__botao{ grid-column:9 / 17; margin-top:30px; }
+
+/* ============================================================
+   Como chegar — roteiro em linhas separadas por filete
+   ============================================================ */
+.rotas{
+  padding-top:calc(27.1px + 9.8558vw);
+  padding-bottom:max(0px, calc(-3.8px + 3.6vw));
+  text-align:center;
+}
+.rotas__titulo{ grid-column:4 / 22; }
+.rotas__lista{ margin-top:calc(24.8px + 4.8077vw); }
+
+.rotas__texto{ grid-column:5 / 21; margin-top:calc(20px + 1.6vw); font-size:var(--fs-grande); }
+.rotas__botao{ grid-column:10 / 16; margin-top:calc(20px + 1.6vw); }
+
+/* ============================================================
+   Pólen — partículas que nascem do movimento do mouse, sobem
+   devagar e se apagam. Sem movimento, não existe nada na tela.
+   ============================================================ */
+.polen-campo{
+  position:fixed;
+  inset:0;
+  z-index:55;
+  overflow:hidden;
+  pointer-events:none;
+}
+.polen{
+  position:absolute;
+  width:var(--t);
+  height:var(--t);
+  margin:calc(var(--t) / -2);
+  border-radius:50%;
+  background:var(--cor);
+  /* o halo é o que faz a partícula ler como luz, e não como bolinha */
+  box-shadow:0 0 6px 1px var(--cor);
+  opacity:0;
+  will-change:transform, opacity;
+  animation:polen-flutuar var(--dur) cubic-bezier(.25,.6,.4,1) forwards;
+}
+/* o platô entre 14% e 62% é o que mantém a partícula visível;
+   sem ele o easing a apaga quase no mesmo instante em que nasce */
+@keyframes polen-flutuar{
+  0%   { opacity:0; transform:translate3d(0,0,0) scale(.35); }
+  14%  { opacity:var(--op); }
+  62%  { opacity:var(--op); transform:translate3d(var(--dx1), var(--dy1), 0) scale(1); }
+  100% { opacity:0; transform:translate3d(var(--dx2), var(--dy2), 0) scale(.85); }
+}
+
+/* ============================================================
+   Mapa
+   ============================================================ */
+.mapa{ padding-bottom:calc(23.2px + 10.8173vw); }
+.mapa__titulo{ grid-column:4 / 22; text-align:center; }
+.mapa__moldura{
+  position:relative;
+  margin:calc(24.8px + 4.8077vw) var(--margem-borda) 0;
+  height:calc(300px + 17vw);
+  overflow:hidden;
+  -webkit-mask-image:var(--borda-organica);
+  mask-image:var(--borda-organica);
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+}
+.mapa__tela{ width:100%; height:100%; background:var(--marfim); }
+
+/* os ladrilhos vêm coloridos; o filtro os traz para a paleta do site */
+.mapa__tela .leaflet-tile-pane{
+  filter:sepia(.5) saturate(.55) hue-rotate(10deg) brightness(1.05) contrast(.92);
+}
+.mapa__tela .leaflet-container{ font-family:var(--corpo); background:var(--marfim); }
+.mapa__tela .leaflet-control-zoom a{
+  color:var(--oliva);
+  background:var(--creme);
+  border-color:rgba(46,49,5,.18);
+  font-family:var(--corpo);
+}
+.mapa__tela .leaflet-popup-content-wrapper,
+.mapa__tela .leaflet-popup-tip{
+  background:var(--creme);
+  color:var(--oliva);
+  border-radius:0;
+  box-shadow:0 14px 30px -18px rgba(46,49,5,.5);
+}
+.mapa__tela .leaflet-popup-content{ margin:12px 16px; font-size:15px; line-height:1.5; }
+.mapa__tela .leaflet-popup-content strong{ font-family:var(--display); font-size:19px; font-weight:500; }
+.mapa__tela .leaflet-control-attribution{ background:rgba(255,253,193,.82); font-size:10px; }
+
+.pino{ display:grid; place-items:center; border-radius:50%; }
+.pino svg{ display:block; }
+.pino--noivos{
+  width:46px; height:46px;
+  background:var(--lima);
+  color:var(--oliva);
+  box-shadow:0 0 0 6px rgba(223,231,119,.35);
+}
+.pino--estadia{
+  width:30px; height:30px;
+  background:var(--oliva);
+  color:var(--creme);
+  box-shadow:0 0 0 4px rgba(46,49,5,.16);
+}
+.pino--cidade{
+  width:16px; height:16px;
+  background:transparent;
+  border:1.5px solid var(--oliva);
+  box-shadow:0 0 0 4px rgba(46,49,5,.1);
+}
+.pino-noiva{ filter:drop-shadow(0 6px 10px rgba(46,49,5,.35)); }
+
+.mapa__legenda{ grid-column:4 / 22; margin-top:calc(20px + 1.6vw); text-align:center; }
+
+/* ============================================================
+   Bloco de três colunas — hospedagens e canais de contato
+   ============================================================ */
+.colunas{
+  padding-top:calc(27.1px + 9.8558vw);
+  padding-bottom:max(0px, calc(-3.8px + 3.6vw));
+  text-align:center;
+}
+.colunas__titulo{ grid-column:4 / 22; }
+.colunas__grade{ margin-top:calc(24.8px + 4.8077vw); }
+/* três colunas de mesma largura, simétricas em relação à página */
+.coluna--1{ grid-column:3 / 9; }
+.coluna--2{ grid-column:10 / 16; }
+.coluna--3{ grid-column:17 / 23; }
+
+.coluna__foto{
+  position:relative;
+  margin:0 0 calc(16px + 1.1vw);
+  aspect-ratio:1 / 1;
+  overflow:hidden;
+}
+/* as fotos se empilham no mesmo lugar e trocam em dissolvência com o mouse em cima */
+.coluna__foto img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity 1.2s cubic-bezier(.4,0,.2,1);
+}
+.coluna__foto img.ativa{ opacity:1; }
+/* sem JS ninguém marca a ativa, então a primeira aparece por conta própria */
+html:not(.js) .coluna__foto img:first-of-type{ opacity:1; }
+
+/* rótulo sobre a foto — o véu escuro garante leitura sobre qualquer imagem */
+.coluna__rotulo{
+  position:absolute;
+  inset:auto 0 0 0;
+  z-index:2;
+  padding:calc(12px + .7vw);
+  text-align:left;
+  color:var(--marfim);
+  background:linear-gradient(to top, rgba(18,20,4,.78), rgba(18,20,4,.34) 52%, transparent);
+}
+.coluna__tipo{
+  display:block;
+  font-family:var(--display);
+  font-size:var(--fs-corpo);
+  line-height:var(--lh-h4);
+}
+.coluna__titulo{
+  margin-top:2px;
+  font-size:var(--fs-h3);
+  line-height:1.15;
+}
+.coluna__link{
+  color:inherit;
+  text-decoration:none;
+  background-image:linear-gradient(currentColor,currentColor);
+  background-size:0 1px;
+  background-position:0 100%;
+  background-repeat:no-repeat;
+  transition:background-size .5s cubic-bezier(.22,.61,.36,1);
+}
+.coluna__link:hover{ background-size:100% 1px; }
+
+/* as letras sobem uma a uma, logo depois que a aquarela descobre a foto */
+.js .coluna__rotulo .letra{
+  display:inline-block;
+  opacity:0;
+  transform:translateY(.42em);
+}
+.js .coluna__foto.revelada .letra{
+  opacity:1;
+  transform:none;
+  transition:opacity .8s ease-out calc(760ms + var(--i) * 34ms),
+             transform 1.1s cubic-bezier(.2,.72,.3,1) calc(760ms + var(--i) * 34ms);
+}
+
+.coluna__nome{ margin-top:32px; overflow-wrap:anywhere; }
+/* quando são dois contatos na mesma coluna, cada um diz de quem é */
+.coluna__nome--seguinte{ margin-top:18px; }
+.coluna__quem{
+  display:block;
+  margin-top:2px;
+  font-size:var(--fs-corpo);
+  color:rgba(46,49,5,.6);
+}
+.coluna__detalhe{ margin-top:16px; }
+/* distância até a festa: informação de apoio, então recua um tom */
+.coluna__distancia{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(46,49,5,.18);
+  color:rgba(46,49,5,.68);
+}
+/* o endereço leva ao trajeto no mapa, partindo de onde a pessoa estiver */
+.coluna__rota{
+  text-decoration:none;
+  background-image:linear-gradient(currentColor,currentColor);
+  background-size:0 1px;
+  background-position:50% 100%;
+  background-repeat:no-repeat;
+  transition:background-size .5s cubic-bezier(.22,.61,.36,1);
+}
+.coluna__rota:hover{ background-size:100% 1px; }
+
+/* ============================================================
+   Nossa história
+   ============================================================ */
+
+/* nesta página o cabeçalho fica sobre fundo claro */
+.cabecalho--claro{ color:var(--oliva); }
+.cabecalho--claro .hamburguer span{ background:var(--oliva); }
+
+.abertura{
+  padding-top:calc(145.6px + 3.8462vw);
+  padding-bottom:max(0px, calc(-0.5px + 3.3654vw));
+  text-align:center;
+}
+.abertura__titulo{ grid-column:1 / 25; }
+.abertura__foto{
+  grid-column:1 / 25;
+  margin:calc(27.2px + 4.5673vw) 0 0;
+  height:calc(219.2px + 41.5865vw);
+  overflow:hidden;
+}
+.abertura__foto img{ width:100%; height:100%; object-fit:cover; }
+
+.citacao{
+  align-content:start;
+  min-height:calc(237.9px + 5.7692vw);
+  padding-top:calc(92px - 3.125vw);
+}
+.citacao__texto{ grid-column:1 / 19; margin:0; }
+.citacao__autor{ grid-column:1 / 19; margin-top:33px; }
+.citacao--direita{ padding-top:calc(89.5px - 2.8846vw); }
+.citacao--direita .citacao__texto,
+.citacao--direita .citacao__autor{ grid-column:7 / 25; }
+
+.retrato{
+  padding-top:max(0px, calc(-2.3px + 7.4519vw));
+  padding-bottom:calc(23.2px + 10.8173vw);
+}
+.retrato__foto{
+  position:relative;
+  grid-column:1 / 15;
+  grid-row:1;
+  margin:0;
+  height:calc(625.4px + 14.9038vw);
+  overflow:hidden;
+}
+.retrato__foto img{ width:100%; height:100%; object-fit:cover; }
+.retrato__nome{
+  position:absolute;
+  top:37px;
+  /* coluna 2 da grade, medida dentro das 14 colunas da foto */
+  left:calc((100% - 13 * var(--gap-coluna)) / 14 + var(--gap-coluna));
+  width:calc((100% - 13 * var(--gap-coluna)) / 14 * 11 + 10 * var(--gap-coluna));
+  color:var(--marfim);
+}
+.retrato__texto{ grid-column:18 / 25; grid-row:1; }
+.retrato__paragrafo{ margin-top:17px; }
+
+/* ------------------------------------------------------------
+   Linha do tempo: uma videira que se desenha conforme a rolagem,
+   ocupando a margem esquerda para não disputar espaço com o texto.
+   ------------------------------------------------------------ */
+.trilha{ position:relative; }
+.trilha__videira{
+  position:absolute;
+  left:0;
+  top:0;
+  width:var(--margem-borda);
+  height:100%;
+  color:var(--oliva);
+  opacity:.55;
+  pointer-events:none;
+}
+.trilha__videira path{ fill:none; stroke:currentColor; }
+
+/* ------------------------------------------------------------
+   Scrapbook: as fotos deslizam e param tortas, com sombra baixa,
+   como recortes largados sobre a mesa. Bem devagar.
+   ------------------------------------------------------------ */
+.abertura__foto,
+.retrato__foto{
+  box-shadow:0 26px 50px -30px rgba(46,49,5,.45), 0 6px 14px -10px rgba(46,49,5,.3);
+}
+.js .abertura__foto,
+.js .retrato__foto{
+  opacity:0;
+  transform:translateY(46px) rotate(0deg);
+}
+.js .abertura__foto.revelada,
+.js .retrato__foto.revelada{
+  opacity:1;
+  transition:transform 2.1s cubic-bezier(.2,.72,.3,1), opacity 1.6s ease-out;
+}
+.js .abertura__foto.revelada{ transform:rotate(-0.7deg); }
+.js .retrato__foto.revelada{ transform:rotate(1.4deg); }
+
+.resto{
+  background:var(--marfim);
+  padding-top:calc(16.2px + 4.5673vw);
+  padding-bottom:calc(11.3px + 5.048vw);
+  text-align:center;
+}
+.resto__titulo{ grid-column:7 / 19; }
+.resto__texto{ grid-column:7 / 19; margin-top:32px; }
+
+.galeria{
+  background:var(--marfim);
+  height:720px;
+  display:flex;
+  flex-direction:column;
+  padding-block:var(--margem-borda);
+}
+.galeria__janela{ margin-inline:var(--margem-borda); overflow:hidden; }
+.galeria__trilho{
+  display:flex;
+  /* o recuo centraliza o primeiro slide na janela; o transform escolhe qual aparece */
+  padding-left:calc(50% - 410px);
+  transform:translateX(calc(var(--slide, 2) * -820px));
+  transition:transform .55s cubic-bezier(.2,.7,.3,1);
+}
+/* cada foto tem a própria moldura: é o que permite tratá-las uma a uma
+   (apagar, reordenar) em vez de uma fita única */
+.galeria__quadro{
+  flex:0 0 820px;
+  width:820px;
+  height:546px;
+  margin:0;
+  position:relative;
+  overflow:hidden;
+}
+.galeria__quadro img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+.galeria__controles{
+  margin-top:auto;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+.galeria__seta{
+  position:relative;
+  width:44px;
+  height:44px;
+  padding:0;
+  border:0;
+  background:none;
+  cursor:pointer;
+  display:grid;
+  place-items:center;
+  transition:opacity .25s cubic-bezier(.2,.7,.3,1);
+}
+.galeria__seta::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:#fff;
+  border-radius:2.92px;
+}
+.galeria__seta:hover{ opacity:.7; }
+.galeria__seta:active{ opacity:.5; }
+.galeria__seta svg{ position:relative; width:28px; height:28px; }
+.galeria__seta path{ fill:none; stroke:#000; stroke-width:4; }
+.galeria__seta--proxima svg{ transform:scaleX(-1); }
+
+/* ============================================================
+   Portfolio — mosaico assimétrico
+   ============================================================ */
+.mosaico{
+  display:flex;
+  align-items:flex-start;
+  gap:calc(11px + 1.2vw);
+  padding-inline:var(--margem-secao);
+  padding-top:calc(27.1px + 9.8558vw);
+  padding-bottom:calc(23.2px + 10.8173vw);
+}
+.mosaico__coluna{
+  flex:1 1 0;
+  display:flex;
+  flex-direction:column;
+  gap:calc(11px + 1.2vw);
+  min-width:0;
+}
+/* o desencontro entre as colunas é o que dá a assimetria */
+.mosaico__coluna--2{ margin-top:calc(40px + 5.5vw); }
+
+.mosaico figure{
+  position:relative;
+  margin:0;
+  overflow:hidden;
+  --atraso:0ms;
+}
+.mosaico img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.mosaico figure[data-proporcao="retrato"]  { aspect-ratio:4 / 5; }
+.mosaico figure[data-proporcao="quadrado"] { aspect-ratio:1 / 1; }
+.mosaico figure[data-proporcao="alto"]     { aspect-ratio:3 / 4; }
+.mosaico figure[data-proporcao="paisagem"] { aspect-ratio:5 / 4; }
+
+/* ------------------------------------------------------------
+   Revelação por máscara: uma cortina da cor do fundo cobre a foto
+   e é puxada para cima, descobrindo a imagem de baixo para cima.
+   A foto entra levemente ampliada e assenta em contra-movimento —
+   é esse desencontro que dá o peso editorial ao efeito.
+   Só transform é animado, então roda na GPU a 60fps.
+   ------------------------------------------------------------ */
+.mosaico figure::after{
+  content:"";
+  position:absolute;
+  inset:-1px;               /* -1px evita fresta de subpixel na borda */
+  z-index:2;
+  background:var(--creme);
+  pointer-events:none;
+}
+/* sem JS não há cortina: as fotos aparecem direto */
+html:not(.js) .mosaico figure::after{ display:none; }
+
+.js .mosaico figure.revelada::after{
+  transform:translateY(-101%);
+  transition:transform 1.05s cubic-bezier(.76,0,.24,1) var(--atraso);
+}
+.js .mosaico img{ transform:scale(1.12) translateY(2.5%); }
+.js .mosaico figure.revelada img{
+  transform:none;
+  transition:transform 1.5s cubic-bezier(.22,.61,.36,1) var(--atraso);
+}
+
+/* a coluna da direita entra logo depois, dando ritmo ao par */
+.mosaico__coluna--2 figure{ --atraso:120ms; }
+
+/* ============================================================
+   Presentes — o Pix
+   ============================================================ */
+.pix{
+  padding-top:calc(27.1px + 9.8558vw);
+  padding-bottom:calc(23.2px + 10.8173vw);
+  text-align:center;
+}
+.pix__texto{ grid-column:6 / 20; font-size:var(--fs-grande); }
+
+.pix__grade{ margin-top:calc(24.8px + 4.8077vw); }
+/* encostada no cartão: só o respiro de uma linha entre o texto e o código */
+.pix__instrucao{ grid-column:6 / 20; margin-bottom:14px; }
+
+/* o cartão é de papel; o QR fica no miolo, longe da borda rasgada,
+   senão o recorte come os cantos do código e o leitor não pega */
+.pix__cartao{
+  grid-column:9 / 17;
+  padding:calc(26px + 1.8vw);
+  background:var(--marfim);
+  -webkit-mask-image:var(--borda-organica);
+  mask-image:var(--borda-organica);
+  -webkit-mask-size:100% 100%;
+  mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;
+  mask-repeat:no-repeat;
+}
+.pix__qr{ display:block; }
+.pix__qr svg{ display:block; width:100%; height:auto; }
+.pix__qr svg path,
+.pix__qr svg rect{ fill:var(--oliva); }
+.pix__qr svg rect:first-child{ fill:transparent; }
+
+/* o botão acompanha a largura do cartão, encostado embaixo dele */
+.pix__botao{ grid-column:9 / 17; margin-top:calc(16px + 1.1vw); }
+.pix__aviso{
+  grid-column:6 / 20;
+  padding:calc(20px + 1.4vw);
+  border:1px dashed rgba(46,49,5,.35);
+  font-size:var(--fs-grande);
+}
+.pix__aviso code{ font-family:ui-monospace, Menlo, Consolas, monospace; font-size:.85em; }
+.pix__rodape{ grid-column:5 / 21; margin-top:calc(24px + 2vw); }
+
+/* ============================================================
+   Confirmar presença
+   ============================================================ */
+.rsvp{
+  padding-top:calc(27.1px + 9.8558vw);
+  padding-bottom:calc(23.2px + 10.8173vw);
+  text-align:center;
+}
+.rsvp__titulo{ grid-column:4 / 22; }
+.rsvp__texto{ grid-column:6 / 20; margin-top:calc(20px + 1.6vw); font-size:var(--fs-grande); }
+
+.rsvp__form{ margin-top:calc(24.8px + 4.8077vw); row-gap:calc(26px + 1.8vw); }
+.campo{ margin:0; text-align:left; border:0; padding:0; min-width:0; }
+.campo--largo{ grid-column:6 / 20; }
+.campo--metade{ grid-column:6 / 13; }
+.campo--metade + .campo--metade{ grid-column:13 / 20; }
+.campo--curto{ grid-column:6 / 11; }
+/* campo que aparece entra subindo, no mesmo compasso lento do resto */
+.campo[hidden]{ display:none; }
+.rsvp__form .campo:not([hidden]){ animation:campo-entra .7s cubic-bezier(.2,.72,.3,1) both; }
+@keyframes campo-entra{
+  from{ opacity:0; transform:translateY(10px); }
+  to{ opacity:1; transform:none; }
+}
+
+.acompanhantes{ display:grid; gap:14px; margin-top:6px; }
+.acompanhante::placeholder{ color:rgba(46,49,5,.38); }
+
+.rsvp__estado{
+  grid-column:6 / 20;
+  margin-top:calc(10px + .8vw);
+  font-size:var(--fs-grande);
+  text-align:center;
+}
+.rsvp__estado[data-tipo="erro"]{ color:#7a3b16; }
+.rsvp__estado[data-tipo="certo"]{
+  font-family:var(--display);
+  font-size:var(--fs-h3);
+  line-height:var(--lh-h3);
+}
+
+.campo__rotulo{
+  display:block;
+  padding:0;
+  font-family:var(--display);
+  font-size:var(--fs-corpo);
+  line-height:var(--lh-h4);
+  color:rgba(46,49,5,.75);
+}
+
+/* campo sem caixa: só um filete embaixo, como linha de caderno */
+.campo__entrada{
+  width:100%;
+  margin-top:6px;
+  padding:6px 0;
+  border:0;
+  border-bottom:1px solid rgba(46,49,5,.32);
+  border-radius:0;
+  background:transparent;
+  color:var(--oliva);
+  font-family:var(--corpo);
+  font-size:var(--fs-grande);
+  line-height:1.5;
+  transition:border-color .4s ease;
+}
+.campo__entrada:focus{ outline:none; border-bottom-color:var(--oliva); }
+.campo__entrada--alto{ resize:vertical; min-height:4.5em; }
+
+.opcao{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  margin:12px 26px 0 0;
+  font-size:var(--fs-grande);
+  cursor:pointer;
+}
+.opcao input{
+  appearance:none;
+  width:15px;
+  height:15px;
+  margin:0;
+  border:1px solid rgba(46,49,5,.45);
+  border-radius:50%;
+  transition:box-shadow .35s ease, border-color .35s ease;
+}
+.opcao input:checked{
+  border-color:var(--oliva);
+  box-shadow:inset 0 0 0 3.5px var(--creme), inset 0 0 0 14px var(--oliva);
+}
+.opcao input:focus-visible{ outline:2px solid currentColor; outline-offset:3px; }
+
+.rsvp__botao{ grid-column:10 / 16; margin-top:calc(10px + .8vw); }
+.rsvp__rodape{ grid-column:5 / 21; margin-top:calc(24px + 2vw); }
+
+/* ============================================================
+   Rodapé
+   ============================================================ */
+.rodape{ padding-top:47px; padding-bottom:87px; text-align:center; }
+.rodape__links{ grid-column:6 / 20; }
+.rodape__links a{ display:block; width:fit-content; margin-inline:auto; }
+
+/* ============================================================
+   Mobile — o original passa a 8 colunas e congela a escala
+   ============================================================ */
+@media (max-width:767px){
+  :root{
+    --ref:900px;
+    --margem-secao:10vw;
+    --margem-borda:6vw;
+    --altura-botao:59px;
+    --altura-botao-g:59px;
+    --altura-foto:339px;
+  }
+
+  .grade,.convite__grade,.rodape__grade{ grid-template-columns:repeat(8,1fr); }
+
+  .cabecalho{ height:84px; }
+
+  .capa__conteudo{ grid-column:1 / 9; }
+
+  .capa--home{ height:653px; padding-top:221px; }
+  .capa__data{ margin-top:31px; }
+
+  .capa--viagem,
+  .capa--contato,
+  .capa--portfolio,
+  .capa--rsvp{ height:569px; padding-top:320px; }
+
+  .pix{ padding-top:65px; padding-bottom:56px; }
+  .pix__texto,.pix__instrucao,.pix__aviso,.pix__rodape,
+  .pix__cartao{ grid-column:1 / 9; }
+  .pix__botao{ grid-column:2 / 8; }
+
+  .rsvp{ padding-top:65px; padding-bottom:56px; }
+  .rsvp__titulo,.rsvp__texto,.rsvp__rodape,.rsvp__estado,
+  .campo--largo,.campo--metade,.campo--curto{ grid-column:1 / 9; }
+  .campo--metade + .campo--metade{ grid-column:1 / 9; }
+  .rsvp__botao{ grid-column:2 / 8; }
+
+  .capa--lista{ padding-top:209px; padding-bottom:95px; }
+  .capa__botao{ grid-column:1 / 9; margin-top:11px; }
+
+  .detalhes{ padding-block:63px 56px; gap:39px; }
+  .bloco{ display:block; }
+  .bloco__foto{
+    width:calc((100% - 7 * var(--gap-coluna)) / 8 * 6 + 5 * var(--gap-coluna));
+    margin-inline:auto;
+    margin-top:28px;
+  }
+  .bloco__titulo{ margin-top:0; }
+  .bloco__texto{ padding-top:11px; }
+  .bloco__endereco{ margin-top:31px; }
+
+  .historia{
+    display:flex;
+    flex-direction:column;
+    row-gap:0;
+    padding-top:61px;
+    padding-bottom:63px;
+  }
+  .historia__risco{ align-self:stretch; }
+  .historia__risco--esq{ order:-1; }
+  .historia__titulo{ margin-top:29px; }
+  .historia__botao{
+    width:calc((100% - 7 * var(--gap-coluna)) / 8 * 6 + 5 * var(--gap-coluna));
+    margin-inline:auto;
+    margin-top:12px;
+  }
+  .historia__risco--dir{ margin-top:62px; }
+
+  .convite__moldura{ height:455px; }
+  .convite__texto{ grid-column:1 / 9; }
+  .convite__botao{ grid-column:2 / 8; margin-top:16px; }
+
+  .mosaico{
+    display:block;
+    padding-top:65px;
+    padding-bottom:56px;
+  }
+  .mosaico__coluna{ gap:22px; }
+  .mosaico__coluna--2{ margin-top:22px; }
+
+  .rotas{ padding-top:65px; padding-bottom:39px; }
+  .rotas__titulo,
+  .rotas__texto{ grid-column:1 / 9; }
+  .rotas__botao{ grid-column:2 / 8; }
+
+  .mapa{ padding-bottom:56px; }
+  .mapa__titulo,
+  .mapa__legenda{ grid-column:1 / 9; }
+  .mapa__moldura{ height:380px; margin-inline:var(--margem-borda); }
+
+  .colunas{ padding-top:65px; padding-bottom:39px; }
+  .colunas__titulo{ grid-column:1 / 9; }
+  .colunas__grade{ margin-top:21px; row-gap:46px; }
+  /* com foto, meia coluna estrangula a imagem: as três empilham inteiras */
+  .coluna--1,
+  .coluna--2,
+  .coluna--3{ grid-column:1 / 9; }
+
+
+  .abertura{ padding-top:180px; padding-bottom:29px; }
+  .abertura__titulo{ grid-column:1 / 9; }
+  .abertura__foto{ grid-column:1 / 9; margin-top:24px; height:234px; }
+
+  .citacao{ min-height:305px; padding-top:30px; }
+  .citacao__texto{ grid-column:1 / 9; }
+  .citacao__autor{ grid-column:1 / 9; margin-top:32px; }
+  .citacao--direita{ min-height:340px; padding-top:65px; }
+  .citacao--direita .citacao__texto,
+  .citacao--direita .citacao__autor{ grid-column:1 / 9; }
+
+  .retrato{ display:block; padding-top:80px; padding-bottom:45px; }
+  .retrato__foto{ height:409px; }
+  .retrato__nome{
+    left:calc((100% - 7 * var(--gap-coluna)) / 8 + var(--gap-coluna));
+    width:calc((100% - 7 * var(--gap-coluna)) / 8 * 6 + 5 * var(--gap-coluna));
+  }
+  .retrato__risco{ margin-top:11px; }
+  .retrato__paragrafo{ margin-top:16px; }
+
+  .resto{ padding-top:67px; padding-bottom:67px; }
+  .resto__titulo{ grid-column:1 / 9; }
+  .resto__texto{ grid-column:1 / 9; }
+
+  .galeria{ padding-block:0; }
+
+  .rodape{ padding-top:65px; padding-bottom:64px; }
+  .rodape__links{ grid-column:1 / 9; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escreva para nós — Entre Videiras e Promessas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<header class="cabecalho">
+  <nav class="cabecalho__nav cabecalho__nav--esq" aria-label="Principal">
+    <a class="link-simples" href="nossa-historia.html">Nossa História</a>
+    <a class="link-simples" href="contato.html" aria-current="page">Contatos</a>
+    <a class="link-simples" href="viagem-e-estada.html">Viagem e Estadia</a>
+  </nav>
+
+  <div class="cabecalho__titulo"><a class="link-simples" href="index.html">Entre Videiras e Promessas</a></div>
+
+  <span class="cabecalho__pagina">Contatos</span>
+
+  <nav class="cabecalho__nav cabecalho__nav--dir" aria-label="Presentes e fotos">
+    <a class="link-simples" href="lista-de-casamento.html">Presentes</a>
+    <a class="link-simples" href="portfolio.html">Portfolio</a>
+    <a class="link-simples" href="confirmar-presenca.html">Confirmar presença</a>
+  </nav>
+
+  <button class="hamburguer" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+    <span></span><span></span>
+  </button>
+</header>
+
+<nav class="menu" id="menu" data-aberto="false" aria-label="Menu">
+  <a href="nossa-historia.html">Nossa História</a>
+  <a href="contato.html">Contatos</a>
+  <a href="viagem-e-estada.html">Viagem e Estadia</a>
+  <a class="menu__marca" href="index.html">Entre Videiras e Promessas</a>
+  <a href="lista-de-casamento.html">Presentes</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="confirmar-presenca.html">Confirmar presença</a>
+</nav>
+
+<main>
+
+  <section data-ancora="1" class="capa capa--contato grade grade--borda">
+    <div class="capa__fundo">
+      <img src="assets/Stocksy_comp_701177.jpg" alt="" data-editavel="contato-1">
+      <div class="capa__veu capa__veu--oliva"></div>
+    </div>
+    <div class="capa__conteudo">
+      <h1 data-texto="contato-t1">Escreva para nós</h1>
+      <p class="capa__legenda" data-texto="contato-t2">Qualquer dúvida sobre o dia, a viagem ou a lista, é só chamar.</p>
+    </div>
+  </section>
+
+  <section data-ancora="2" class="colunas colunas--contato">
+    <div class="grade grade--borda">
+      <h2 class="colunas__titulo" data-texto="contato-t3">Onde nos encontrar</h2>
+    </div>
+
+    <div class="grade grade--borda colunas__grade">
+      <div class="coluna coluna--1">
+        <h4 data-texto="contato-t4">WhatsApp</h4>
+        <p class="coluna__nome" data-texto="contato-t5"><a class="link-sublinhado" href="https://wa.me/5541997141877" target="_blank" rel="noopener"><strong>(41) 99714-1877</strong></a><span class="coluna__quem">Gabriel</span></p>
+        <p class="coluna__nome coluna__nome--seguinte" data-texto="contato-t6"><a class="link-sublinhado" href="https://wa.me/5524992980393" target="_blank" rel="noopener"><strong>(24) 99298-0393</strong></a><span class="coluna__quem">Jaqueline</span></p>
+        <p class="coluna__detalhe" data-texto="contato-t7">O jeito mais rápido<br>de falar com a gente</p>
+      </div>
+
+      <div class="coluna coluna--2">
+        <h4 data-texto="contato-t8">Instagram</h4>
+        <p class="coluna__nome" data-texto="contato-t9"><a class="link-sublinhado" href="https://www.instagram.com/gabriel_9017_/" target="_blank" rel="noopener"><strong>@gabriel_9017_</strong></a><span class="coluna__quem">Gabriel</span></p>
+        <p class="coluna__nome coluna__nome--seguinte" data-texto="contato-t10"><a class="link-sublinhado" href="https://www.instagram.com/jaquesouza2508/" target="_blank" rel="noopener"><strong>@jaquesouza2508</strong></a><span class="coluna__quem">Jaqueline</span></p>
+        <p class="coluna__detalhe" data-texto="contato-t11">Os preparativos e as<br>novidades do casamento</p>
+      </div>
+
+      <div class="coluna coluna--3">
+        <h4 data-texto="contato-t12">E-mail</h4>
+        <p class="coluna__nome" data-texto="contato-t13"><a class="link-sublinhado" href="mailto:gabriellroque9017@gmail.com"><strong>gabriellroque9017@gmail.com</strong></a></p>
+        <p class="coluna__detalhe" data-texto="contato-t14">Para recados mais longos</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="rodape">
+  <div class="grade grade--borda rodape__grade">
+    <p class="rodape__links">
+      <a class="link-sublinhado" href="contato.html">Contatos</a>
+    </p>
+  </div>
+</footer>
+
+<audio id="musica" preload="auto"></audio>
+<button class="som" id="som" type="button" aria-pressed="false" aria-label="Silenciar a música">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 9.5h3.5L12 5.5v13L7.5 14.5H4z"></path>
+    <path class="som__onda" d="M15.5 9.2a4 4 0 0 1 0 5.6"></path>
+    <path class="som__onda" d="M18 6.8a7.5 7.5 0 0 1 0 10.4"></path>
+    <path class="som__corte" d="M16 9.5l5 5m0-5l-5 5"></path>
+  </svg>
+</button>
+
+<script src="menu.js"></script>
+<script src="polen.js"></script><script src="musica.js"></script>
+<script src="editor-remendo.js"></script>
+<script src="editor-deposito.js"></script>
+<script src="editor.js"></script>
+</body>
+</html>

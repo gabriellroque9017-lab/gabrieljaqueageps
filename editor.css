@@ -1,0 +1,196 @@
+/* ============================================================
+   MODO DE EDIÇÃO — temporário, apagar junto com editor.js
+   Deliberadamente destoa do site: precisa ficar óbvio o que é
+   ferramenta e o que é o site de verdade.
+   ============================================================ */
+
+.ed-alvo{ outline:2px dashed rgba(46,49,5,.35); outline-offset:-2px; }
+.ed-alvo[data-arrastando="true"]{ outline:3px solid #7A8B2E; outline-offset:-3px; }
+.ed-alvo[data-arrastando="true"]::after{
+  content:"solte para trocar";
+  position:absolute; inset:0; z-index:60;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(24,26,3,.55); color:#FEFFE9;
+  font:500 15px/1 system-ui, sans-serif; letter-spacing:.02em;
+  pointer-events:none;
+}
+
+.ed-botao{
+  position:absolute; top:10px; left:10px; z-index:61;
+  padding:7px 12px; border:0; border-radius:2px;
+  background:rgba(24,26,3,.86); color:#FEFFE9;
+  font:500 12px/1 system-ui, sans-serif; letter-spacing:.03em;
+  cursor:pointer; opacity:.55;
+  transition:opacity .18s ease, transform .18s ease;
+}
+.ed-botao:hover, .ed-botao:focus-visible{ opacity:1; transform:translateY(-1px); }
+.ed-botao:active{ transform:translateY(0); }
+
+/* na faixa de fotos o canto de cima já tem o número e o apagar */
+.ed-botao--baixo{
+  top:auto; left:50%; bottom:12px;
+  transform:translateX(-50%);
+}
+.ed-botao--baixo:hover,
+.ed-botao--baixo:focus-visible{ transform:translate(-50%, -1px); }
+.ed-botao--baixo:active{ transform:translateX(-50%); }
+
+/* ---- Portfolio e faixa de fotos ---- */
+.ed-item{ position:relative; }
+.ed-item[data-movendo="true"]{ opacity:.4; }
+.ed-item[data-sobre="true"]{ outline:3px solid #7A8B2E; outline-offset:2px; }
+
+.ed-apagar{
+  position:absolute; top:8px; right:8px; z-index:61;
+  width:30px; height:30px; border:0; border-radius:50%;
+  background:rgba(24,26,3,.86); color:#FEFFE9;
+  font:400 20px/1 system-ui, sans-serif; cursor:pointer; opacity:.6;
+  transition:opacity .18s ease, background-color .18s ease;
+}
+.ed-apagar:hover, .ed-apagar:focus-visible{ opacity:1; background:#8B2E2E; }
+
+.ed-ordem{
+  position:absolute; top:8px; left:8px; z-index:61;
+  min-width:26px; height:26px; padding:0 7px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(24,26,3,.7); color:#FEFFE9;
+  font:500 12px/1 system-ui, sans-serif;
+}
+
+.ed-adicionar{
+  margin:26px 8vw 60px;
+  padding:34px 20px; border:2px dashed rgba(46,49,5,.4); border-radius:3px;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  text-align:center; cursor:pointer;
+  color:#2E3105; font-family:system-ui, sans-serif;
+  transition:background-color .18s ease, border-color .18s ease;
+}
+.ed-adicionar strong{ font-size:15px; font-weight:600; }
+.ed-adicionar span{ font-size:13px; opacity:.7; }
+.ed-adicionar:hover{ background:rgba(122,139,46,.07); }
+.ed-adicionar[data-arrastando="true"]{ background:rgba(122,139,46,.16); border-color:#7A8B2E; }
+
+/* botão de acrescentar, ao lado das setas da faixa */
+.ed-mais{
+  margin-left:14px; padding:0 16px; height:44px; border:0; border-radius:2px;
+  background:rgba(24,26,3,.86); color:#FEFFE9;
+  font:500 13px/1 system-ui, sans-serif; letter-spacing:.02em;
+  cursor:pointer; opacity:.85;
+  transition:opacity .18s ease, transform .18s ease;
+}
+.ed-mais:hover, .ed-mais:focus-visible{ opacity:1; transform:translateY(-1px); }
+.ed-mais:active{ transform:translateY(0); }
+
+/* ---- textos ---- */
+.ed-barra{
+  position:fixed; left:14px; bottom:52px; z-index:202;
+  display:flex; gap:8px;
+}
+.ed-mais[data-ligado="true"]{ background:#7A8B2E; opacity:1; }
+
+body[data-editando-texto="true"] [data-texto]{
+  outline:1px dashed rgba(46,49,5,.45);
+  outline-offset:3px;
+  cursor:text;
+}
+body[data-editando-texto="true"] [data-texto]:focus{
+  outline:2px solid #7A8B2E;
+  background:rgba(255,255,255,.35);
+}
+
+/* os textos soltos precisam receber clique no editor; no site publicado
+   eles são pointer-events:none para não roubarem o toque de nada */
+.ed-livre{
+  pointer-events:auto;
+  outline:1px dashed rgba(46,49,5,.4);
+  outline-offset:6px;
+  cursor:grab;
+}
+.ed-livre[data-movendo="true"]{ cursor:grabbing; outline:2px solid #7A8B2E; }
+.ed-apagar--texto{
+  top:-16px; right:-16px; width:24px; height:24px; font-size:16px; opacity:.85;
+}
+
+/* alça de largura, na borda direita da caixa */
+.ed-alca{
+  position:absolute; top:50%; right:-13px;
+  width:10px; height:38px; margin-top:-19px;
+  border-radius:5px; background:#7A8B2E; border:2px solid #FEFFE9;
+  cursor:ew-resize; z-index:62; opacity:.55;
+  transition:opacity .18s ease;
+}
+.ed-alca:hover{ opacity:1; }
+[data-texto]{ position:relative; }
+[data-medindo="true"]{ outline:2px solid #7A8B2E !important; outline-offset:3px; }
+[data-medindo="true"] .ed-alca{ opacity:1; }
+
+/* fantasma que segue o cursor enquanto você escolhe o lugar */
+body[data-posicionando="true"]{ cursor:crosshair; }
+body[data-posicionando="true"] *{ cursor:crosshair !important; }
+.ed-fantasma{
+  position:fixed; z-index:210; pointer-events:none; opacity:.85;
+  text-shadow:0 1px 10px rgba(255,255,255,.6);
+}
+
+.ed-painel{
+  position:fixed; left:14px; bottom:104px; z-index:205;
+  width:290px; padding:16px; border-radius:4px;
+  background:#2E3105; color:#FEFFE9;
+  display:flex; flex-direction:column; gap:10px;
+  font:400 13px/1.4 system-ui, sans-serif;
+  box-shadow:0 18px 40px -18px rgba(0,0,0,.6);
+}
+.ed-painel strong{ font-size:14px; font-weight:600; }
+.ed-painel label{ display:flex; flex-direction:column; gap:4px; font-size:12px; opacity:.9; }
+.ed-painel--conta{ width:300px; }
+.ed-painel__limpar{
+  margin-top:2px; padding:6px 0; border:0; border-radius:2px; cursor:pointer;
+  background:transparent; color:rgba(254,255,233,.6);
+  font:400 11px/1 system-ui, sans-serif; text-decoration:underline;
+}
+.ed-painel__limpar:hover{ color:#FEFFE9; }
+
+.ed-painel input[type="text"],
+.ed-painel input[type="password"],
+.ed-painel input:not([type]),
+.ed-painel select,
+.ed-painel .ed-campo{
+  font:inherit; padding:6px 8px; border:1px solid rgba(254,255,233,.35);
+  border-radius:2px; background:rgba(254,255,233,.08); color:#FEFFE9;
+}
+.ed-painel .ed-campo{ resize:vertical; font-size:13px; }
+.ed-painel input[type="range"]{ accent-color:#DFE777; }
+.ed-painel__acoes{ display:flex; gap:8px; margin-top:2px; }
+.ed-painel__acoes button{
+  flex:1; padding:8px 0; border:0; border-radius:2px; cursor:pointer;
+  font:500 12px/1 system-ui, sans-serif;
+}
+.ed-painel__ok{ background:#DFE777; color:#2E3105; }
+.ed-painel__nao{ background:rgba(254,255,233,.16); color:#FEFFE9; }
+.ed-painel__dica{ font-size:11px; opacity:.7; line-height:1.35; }
+
+/* ---- avisos ---- */
+.ed-faixa{
+  position:fixed; left:0; right:0; bottom:0; z-index:200;
+  padding:9px 16px; background:#2E3105; color:#FEFFE9;
+  font:400 12px/1.5 system-ui, sans-serif; text-align:center;
+}
+.ed-faixa strong{ font-weight:600; }
+.ed-faixa code{ font-family:ui-monospace, monospace; opacity:.85; }
+
+.ed-aviso{
+  position:fixed; left:50%; bottom:52px; z-index:201;
+  transform:translate(-50%, 12px);
+  padding:11px 18px; border-radius:3px;
+  background:#2E3105; color:#FEFFE9;
+  font:500 13px/1.4 system-ui, sans-serif;
+  max-width:min(560px, 90vw); text-align:center;
+  opacity:0; pointer-events:none;
+  transition:opacity .2s ease, transform .2s ease;
+}
+.ed-aviso[data-visivel="true"]{ opacity:1; transform:translate(-50%, 0); }
+.ed-aviso[data-tipo="erro"]{ background:#8B2E2E; }
+.ed-aviso[data-tipo="aguarde"]{ background:#5A5E3A; }
+
+/* o botão de som e a faixa disputam o canto de baixo */
+.ed-faixa ~ .som, body:has(.ed-faixa) .som{ bottom:58px; }
