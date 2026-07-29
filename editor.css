@@ -172,14 +172,24 @@ body[data-posicionando="true"] *{ cursor:crosshair !important; }
 /* Botão de entrar, visível para todos. Discreto de propósito: sozinho ele
    não abre nada — sem token válido nenhuma gravação passa. */
 .ed-entrar{
-  position:fixed; left:14px; bottom:14px; z-index:150;
-  padding:6px 12px; border:1px solid rgba(46,49,5,.25); border-radius:2px;
-  background:rgba(254,255,233,.7); color:#2E3105;
-  font:400 11px/1 system-ui, sans-serif; letter-spacing:.06em;
-  text-transform:lowercase; cursor:pointer; opacity:.4;
-  transition:opacity .2s ease;
+  position:fixed; top:10px; left:50%; transform:translateX(-50%);
+  z-index:150;
+  padding:9px 26px; border:0; border-radius:3px;
+  background:rgba(24,26,3,.82); color:#FEFFE9;
+  font:500 14px/1 system-ui, sans-serif; letter-spacing:.08em;
+  text-transform:uppercase; cursor:pointer; opacity:.75;
+  box-shadow:0 6px 18px -8px rgba(0,0,0,.5);
+  transition:opacity .2s ease, transform .2s ease, background-color .2s ease;
 }
-.ed-entrar:hover, .ed-entrar:focus-visible{ opacity:1; }
+.ed-entrar:hover, .ed-entrar:focus-visible{
+  opacity:1; background:#2E3105; transform:translateX(-50%) translateY(-1px);
+}
+.ed-entrar:active{ transform:translateX(-50%); }
+
+/* no celular o cabeçalho é mais baixo e o botão encostaria no nome da página */
+@media (max-width:1149px){
+  .ed-entrar{ top:auto; bottom:14px; padding:8px 20px; font-size:13px; }
+}
 
 .ed-lembrar{
   flex-direction:row !important; align-items:center; gap:8px !important;

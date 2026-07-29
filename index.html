@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400&display=swap">
 <link rel="stylesheet" href="estilo.css">
+<link rel="stylesheet" href="editor.css">
 </head>
 <body>
 
@@ -49,72 +50,72 @@
 
 <main>
 
-  <section class="capa capa--home grade grade--borda">
+  <section data-ancora="1" class="capa capa--home grade grade--borda">
     <div class="capa__fundo">
-      <img src="assets/capa-home.jpg" alt="" style="object-position:68% 45%">
+      <img src="assets/capa-home.jpg" alt="" style="object-position:68% 45%" data-editavel="index-1">
       <div class="capa__veu capa__veu--oliva"></div>
       <div class="capa__veu capa__veu--leitura"></div>
     </div>
     <div class="capa__conteudo">
-      <p class="texto-grande">O convidamos para presenciar o casamento de</p>
-      <h1>Gabriel Hossana &amp; Jaqueline</h1>
-      <p class="capa__data"><strong>12 . 12 . 26</strong></p>
+      <p class="texto-grande" data-texto="index-t1">O convidamos para presenciar o casamento de</p>
+      <h1 data-texto="index-t2">Gabriel Hossana &amp; Jaqueline</h1>
+      <p class="capa__data" data-texto="index-t3"><strong>12 . 12 . 26</strong></p>
     </div>
   </section>
 
-  <section class="detalhes">
+  <section data-ancora="2" class="detalhes">
     <article class="bloco">
-      <h2 class="bloco__titulo tipo-h1">Cerimônia</h2>
+      <h2 class="bloco__titulo tipo-h1" data-texto="index-t4">Cerimônia</h2>
       <figure class="bloco__foto">
-        <img src="assets/cerimonia.jpg" alt="Gabriel e Jaqueline na praia" style="object-position:55% 50%">
+        <img src="assets/cerimonia.jpg" alt="Gabriel e Jaqueline na praia" style="object-position:55% 50%" data-editavel="index-2">
       </figure>
       <div class="bloco__texto">
-        <h3>17h</h3>
-        <p class="bloco__endereco texto-grande"><a class="link-sublinhado" href="https://www.instagram.com/vilabotane/" target="_blank" rel="noopener">Vila Botané</a><br>Rua Luiz Francisco de Souza, 555<br>Ponte Funda, Vassouras - RJ<br>27700-000</p>
-        <p class="bloco__mapa texto-grande"><a class="link-sublinhado" href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Luiz+Francisco+de+Souza%2C+555+-+Ponte+Funda%2C+Vassouras+-+RJ%2C+27700-000" target="_blank" rel="noopener">Mapa</a></p>
+        <h3 data-texto="index-t5">17h</h3>
+        <p class="bloco__endereco texto-grande" data-texto="index-t6"><a class="link-sublinhado" href="https://www.instagram.com/vilabotane/" target="_blank" rel="noopener">Vila Botané</a><br>Rua Luiz Francisco de Souza, 555<br>Ponte Funda, Vassouras - RJ<br>27700-000</p>
+        <p class="bloco__mapa texto-grande" data-texto="index-t7"><a class="link-sublinhado" href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Luiz+Francisco+de+Souza%2C+555+-+Ponte+Funda%2C+Vassouras+-+RJ%2C+27700-000" target="_blank" rel="noopener">Mapa</a></p>
       </div>
     </article>
 
     <article class="bloco bloco--invertido">
-      <h2 class="bloco__titulo tipo-h1">Vestimenta</h2>
+      <h2 class="bloco__titulo tipo-h1" data-texto="index-t8">Vestimenta</h2>
       <figure class="bloco__foto">
-        <img src="assets/vestimenta.jpg" alt="Gabriel e Jaqueline de mãos dadas na praia" style="object-position:50% 50%">
+        <img src="assets/vestimenta.jpg" alt="Gabriel e Jaqueline de mãos dadas na praia" style="object-position:50% 50%" data-editavel="index-3">
       </figure>
       <div class="bloco__texto">
         <dl class="vestimenta">
           <div class="vestimenta__item">
-            <dt class="vestimenta__quem">Padrinhos &amp; Madrinhas</dt>
-            <dd class="vestimenta__oque">Esporte fino ou vestido verde</dd>
+            <dt class="vestimenta__quem" data-texto="index-t9">Padrinhos &amp; Madrinhas</dt>
+            <dd class="vestimenta__oque" data-texto="index-t10">Esporte fino ou vestido verde</dd>
           </div>
           <div class="vestimenta__item">
-            <dt class="vestimenta__quem">Convidado militar da ativa</dt>
-            <dd class="vestimenta__oque">4º uniforme (cinza)</dd>
+            <dt class="vestimenta__quem" data-texto="index-t11">Convidado militar da ativa</dt>
+            <dd class="vestimenta__oque" data-texto="index-t12">4º uniforme (cinza)</dd>
           </div>
           <div class="vestimenta__item">
-            <dt class="vestimenta__quem">Demais convidados</dt>
-            <dd class="vestimenta__oque">Esporte fino</dd>
+            <dt class="vestimenta__quem" data-texto="index-t13">Demais convidados</dt>
+            <dd class="vestimenta__oque" data-texto="index-t14">Esporte fino</dd>
           </div>
         </dl>
       </div>
     </article>
   </section>
 
-  <section class="historia">
-    <h2 class="historia__titulo">Veja como tudo começou</h2>
+  <section data-ancora="3" class="historia">
+    <h2 class="historia__titulo" data-texto="index-t15">Veja como tudo começou</h2>
     <div class="historia__risco historia__risco--esq" aria-hidden="true"></div>
     <a class="botao botao--escuro historia__botao" href="nossa-historia.html">Nossa História</a>
     <div class="historia__risco historia__risco--dir" aria-hidden="true"></div>
   </section>
 
-  <section class="convite">
+  <section data-ancora="4" class="convite">
     <div class="convite__moldura">
-      <img src="assets/convite.jpg" alt="Gabriel carregando Jaqueline no colo, no mar" style="object-position:50% 32%">
+      <img src="assets/convite.jpg" alt="Gabriel carregando Jaqueline no colo, no mar" style="object-position:50% 32%" data-editavel="index-4">
       <div class="convite__veu"></div>
       <div class="convite__veu convite__veu--leitura"></div>
       <div class="convite__grade">
         <div class="convite__texto">
-          <p class="texto-grande">Junte-se a nós</p>
-          <h2>Esperamos você!</h2>
+          <p class="texto-grande" data-texto="index-t16">Junte-se a nós</p>
+          <h2 data-texto="index-t17">Esperamos você!</h2>
         </div>
         <a class="botao botao--lima convite__botao" href="confirmar-presenca.html">Confirmar presença</a>
       </div>
@@ -144,5 +145,8 @@
 <script src="menu.js"></script>
 <script src="aquarela.js"></script>
 <script src="polen.js"></script><script src="musica.js"></script>
+<script src="editor-remendo.js"></script>
+<script src="editor-deposito.js"></script>
+<script src="editor.js"></script>
 </body>
 </html>
