@@ -114,11 +114,30 @@ audio.addEventListener('ended', () => {
   pintarBotao();
 });
 
-// quem pausou numa página continua pausado na seguinte
+/* Pausar vale enquanto a pessoa está passeando pelo site — de nada adianta
+   silenciar numa página e a música voltar na seguinte.
+
+   Mas quem CHEGA ao site deve encontrar a música ligada. Sem isso, quem
+   pausou uma vez ficava com o site mudo para sempre naquela aba, e só o
+   botão religava. O referrer distingue os dois casos: veio de outra página
+   nossa, respeita a pausa; chegou de fora ou digitou o endereço, recomeça. */
+const veioDeDentro = document.referrer && new URL(document.referrer).origin === location.origin;
+if (!veioDeDentro) sessionStorage.removeItem(CHAVE_PAUSA);
+
 const pausadaAntes = sessionStorage.getItem(CHAVE_PAUSA) === 'sim';
 mostrarTocador(false);
 pintarBotao();
 if (!pausadaAntes) tocar();
+
+/* O navegador proíbe som antes de qualquer clique — não há como contornar.
+   Então o botão respira devagar até a música começar, para o convidado
+   perceber que existe algo ali. Para no primeiro toque. */
+if (!pausadaAntes) {
+  botao.dataset.chamando = 'true';
+  const parar = () => (botao.dataset.chamando = 'false');
+  audio.addEventListener('play', parar, { once: true });
+  addEventListener('pointerdown', parar, { once: true, passive: true });
+}
 
 // se o navegador barrou o som, a primeira interação libera
 const gestos = ['pointerdown', 'keydown', 'touchstart', 'wheel'];

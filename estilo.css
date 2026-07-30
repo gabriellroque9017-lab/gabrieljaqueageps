@@ -337,6 +337,17 @@ a{ color:inherit; }
   .tocador__disco{ animation:none; }
 }
 
+/* Enquanto a música não pôde começar — o navegador só libera som depois de
+   um clique —, o botão respira devagar para não passar despercebido. */
+.som[data-chamando="true"]{ animation:respirar 2.6s ease-in-out infinite; opacity:1; }
+@keyframes respirar{
+  0%, 100%{ transform:scale(1);    box-shadow:0 0 0 0 rgba(46,49,5,.30); }
+  50%     { transform:scale(1.06); box-shadow:0 0 0 9px rgba(46,49,5,0); }
+}
+@media (prefers-reduced-motion:reduce){
+  .som[data-chamando="true"]{ animation:none; }
+}
+
 .som{
   position:fixed;
   right:calc(10px + 1vw);
