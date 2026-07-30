@@ -269,6 +269,74 @@ a{ color:inherit; }
 /* ============================================================
    Botão de som — fixo, discreto, fora do fluxo do layout
    ============================================================ */
+/* ============================================================
+   Tocador — o disco girando e a barra de posição
+   ------------------------------------------------------------
+   Ficam ao lado do botão de som e só existem enquanto a música
+   anda. Pausada ou terminada, os dois somem.
+   ============================================================ */
+.tocador{
+  position:fixed;
+  right:calc(58px + 1vw);        /* à esquerda do botão de 38px */
+  bottom:calc(6px + 1vw);
+  z-index:30;
+  width:46px;                     /* levemente maior que o botão */
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .45s ease, visibility .45s;
+}
+.tocador[data-tocando="true"]{ opacity:1; visibility:visible; }
+
+/* A barra flutua sobre o que estiver atrás — creme, foto clara ou foto
+   escura. Por isso o trilho é claro com um contorno sutil: assim ela se
+   enxerga em qualquer fundo, em vez de sumir sobre as fotos. */
+.tocador__barra{
+  position:relative;
+  width:100%;
+  height:14px;                    /* alvo generoso para o toque */
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+  touch-action:none;
+}
+.tocador__barra::before{
+  content:"";
+  position:absolute;
+  inset:auto 0;
+  height:5px;
+  border-radius:3px;
+  background:var(--creme);
+  box-shadow:0 0 0 1px rgba(46,49,5,.28), 0 1px 4px rgba(46,49,5,.25);
+}
+.tocador__feito{
+  position:relative;
+  height:5px;
+  border-radius:3px;
+  background:var(--oliva);
+  width:0;
+  min-width:0;
+  transition:width .2s linear;
+}
+.tocador__barra:focus-visible{ outline:2px solid var(--oliva); outline-offset:3px; border-radius:2px; }
+
+.tocador__disco{
+  width:46px; height:46px;
+  display:block;
+  user-select:none;
+  filter:drop-shadow(0 3px 8px rgba(46,49,5,.28));
+  animation:girar 3.4s linear infinite;
+}
+@keyframes girar{ to{ transform:rotate(360deg); } }
+
+/* quem pediu menos movimento não recebe o giro, mas continua vendo o disco */
+@media (prefers-reduced-motion:reduce){
+  .tocador__disco{ animation:none; }
+}
+
 .som{
   position:fixed;
   right:calc(10px + 1vw);
@@ -454,6 +522,13 @@ main [data-ancora]{ position:relative; }
 .bloco--invertido .bloco__foto{ grid-column:14 / 25; }
 .bloco--invertido .bloco__titulo,
 .bloco--invertido .bloco__texto{ grid-column:1 / 12; }
+
+/* O recuo do título foi desenhado para textos de uma linha ("17h"). Quando o
+   texto é longo, ele joga tudo para baixo e a coluna termina muito além da
+   foto. Aqui o título encosta no topo da foto e o bloco fica equilibrado. */
+.bloco--alto{ grid-template-rows:auto auto; }
+.bloco--alto .bloco__titulo{ margin-top:0; }
+.bloco--alto .bloco__texto{ padding-top:calc(18px + 1.2vw); }
 
 .bloco__endereco{ margin-top:32px; }
 .bloco__mapa{ margin-top:16px; }
@@ -1327,6 +1402,39 @@ html:not(.js) .mosaico figure::after{ display:none; }
   .resto__texto{ grid-column:1 / 9; }
 
   .galeria{ padding-block:0; }
+
+  /* --------------------------------------------------------
+     Texto corrido no celular
+     --------------------------------------------------------
+     A escala do site congela em 900px abaixo de 768, o que deixa o
+     corpo em 21,4px. Isso funcionava quando os textos eram de uma
+     linha ("Vila Botané", "esporte fino"). Com parágrafos de verdade
+     vira leitura de 28 letras por linha, e a categoria acima quase
+     não se distingue do texto.
+
+     Aqui os blocos de leitura descem para 17px e as categorias sobem
+     de proporção, devolvendo a hierarquia. Títulos e destaques ficam
+     como estão — só o texto que se lê de fato muda. */
+  .vestimenta__oque,
+  .pix__texto,
+  .pix__rodape,
+  .pix__instrucao,
+  .retrato__paragrafo,
+  .resto__texto,
+  .rsvp__texto,
+  .capa__legenda,
+  .coluna__detalhe{
+    font-size:17px;
+    line-height:1.62;
+  }
+
+  /* a categoria precisa se destacar do parágrafo que vem abaixo */
+  .vestimenta__quem{ font-size:24px; }
+  .vestimenta{ gap:30px; }
+
+  /* o h1 da capa de Presentes é texto, não título: 48px numa frase
+     longa ocupa meia tela */
+  .capa--lista .capa__conteudo h1{ font-size:30px; line-height:1.28; }
 
   .rodape{ padding-top:65px; padding-bottom:64px; }
   .rodape__links{ grid-column:1 / 9; }

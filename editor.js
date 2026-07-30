@@ -14,6 +14,11 @@
 const PAGINA = location.pathname.split('/').pop() || 'index.html';
 const REMOTO = Deposito.modo() === 'github';
 
+/* Fora do celular. Arrastar fotos, posicionar texto e a alça de largura
+   dependem de mouse; numa tela pequena viram armadilha — foi ali que um
+   texto acabou esmagado a 15% sem querer. */
+if (matchMedia('(max-width: 1149px)').matches || matchMedia('(pointer: coarse)').matches) return;
+
 /* No site publicado o editor fica desligado por padrão. Quem liga é o botão
    discreto do canto — ou o ?editar=1 no endereço, que continua valendo.
    Uma vez ligado, fica ligado na aba enquanto você navega. */

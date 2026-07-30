@@ -1,55 +1,95 @@
-// Trilha do site — duas faixas em sequência.
+// Trilha do site — uma faixa só.
 //
 // Cada página é um documento novo, então o navegador para o áudio ao navegar.
-// Para dar continuidade, guardamos qual faixa estava tocando e em que segundo,
-// e retomamos dali na página seguinte — em vez de recomeçar do zero.
+// Para dar continuidade, guardamos em que segundo estava e retomamos dali na
+// página seguinte — em vez de recomeçar do zero.
 //
-// Os navegadores também bloqueiam som automático antes de qualquer interação.
-// Quando isso acontece, esperamos o primeiro clique, toque ou rolagem.
+// Os navegadores bloqueiam som automático antes de qualquer interação. Quando
+// isso acontece, esperamos o primeiro clique, toque ou rolagem.
 
-const FAIXAS = ['assets/musica-1.mp3', 'assets/musica-2.mp3'];
+const FAIXA = 'assets/alianca.mp3';
 
 const audio = document.getElementById('musica');
 const botao = document.getElementById('som');
 
-const CHAVE_FAIXA = 'musica:faixa';
 const CHAVE_TEMPO = 'musica:segundo';
-const CHAVE_MUDO = 'musica:mudo';
+const CHAVE_PAUSA = 'musica:pausada';
 
-let atual = Number(sessionStorage.getItem(CHAVE_FAIXA)) || 0;
-if (atual < 0 || atual >= FAIXAS.length) atual = 0;
+/* ------------------------------------------------------------
+   O disco e a barra de posição, ao lado do botão
+   ------------------------------------------------------------ */
+const tocador = document.createElement('div');
+tocador.className = 'tocador';
+tocador.innerHTML =
+  '<div class="tocador__barra" role="slider" tabindex="0" aria-label="Posição da música"' +
+  ' aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">' +
+  '<span class="tocador__feito"></span></div>' +
+  '<img class="tocador__disco" src="assets/disco.png" alt="" draggable="false">';
+document.body.appendChild(tocador);
 
-function carregar(indice, retomarEm = 0) {
-  atual = indice;
-  sessionStorage.setItem(CHAVE_FAIXA, String(atual));
-  audio.src = FAIXAS[atual];
-  if (retomarEm > 0) {
-    const aplicar = () => {
-      if (retomarEm < audio.duration) audio.currentTime = retomarEm;
-    };
-    if (audio.readyState >= 1) aplicar();
-    else audio.addEventListener('loadedmetadata', aplicar, { once: true });
-  }
+const barra = tocador.querySelector('.tocador__barra');
+const feito = tocador.querySelector('.tocador__feito');
+
+/* O disco e a barra só existem enquanto a música anda de verdade. Pausada ou
+   terminada, os dois somem — o canto volta a ter só o botão. */
+function mostrarTocador(ligado) {
+  tocador.dataset.tocando = String(ligado);
 }
 
-// retoma de onde parou
-carregar(atual, parseFloat(sessionStorage.getItem(CHAVE_TEMPO)) || 0);
+function pintarBarra() {
+  if (!audio.duration || !isFinite(audio.duration)) return;
+  const pct = (audio.currentTime / audio.duration) * 100;
+  feito.style.width = pct.toFixed(2) + '%';
+  barra.setAttribute('aria-valuenow', Math.round(pct));
+}
 
-// acabou uma faixa, entra a seguinte; depois da última volta para a primeira
-audio.addEventListener('ended', () => {
-  carregar((atual + 1) % FAIXAS.length);
-  sessionStorage.setItem(CHAVE_TEMPO, '0');
-  tocar();
+/* clique ou arraste na barra move a música para aquele ponto */
+function irPara(evento) {
+  if (!audio.duration || !isFinite(audio.duration)) return;
+  const r = barra.getBoundingClientRect();
+  const x = (evento.touches ? evento.touches[0].clientX : evento.clientX) - r.left;
+  audio.currentTime = Math.max(0, Math.min(1, x / r.width)) * audio.duration;
+  pintarBarra();
+}
+
+let arrastando = false;
+barra.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  arrastando = true;
+  barra.setPointerCapture(e.pointerId);
+  irPara(e);
+});
+barra.addEventListener('pointermove', (e) => arrastando && irPara(e));
+barra.addEventListener('pointerup', () => (arrastando = false));
+barra.addEventListener('keydown', (e) => {
+  if (!audio.duration) return;
+  if (e.key === 'ArrowRight') audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+  else if (e.key === 'ArrowLeft') audio.currentTime = Math.max(0, audio.currentTime - 5);
+  else return;
+  e.preventDefault();
+  pintarBarra();
 });
 
-// o estado de mudo atravessa a sessão inteira
-audio.muted = localStorage.getItem(CHAVE_MUDO) === 'sim';
-pintarBotao();
+/* ------------------------------------------------------------
+   Estado
+   ------------------------------------------------------------ */
+audio.src = FAIXA;
+
+const retomarEm = parseFloat(sessionStorage.getItem(CHAVE_TEMPO)) || 0;
+if (retomarEm > 0) {
+  const aplicar = () => {
+    if (retomarEm < audio.duration) audio.currentTime = retomarEm;
+    pintarBarra();
+  };
+  if (audio.readyState >= 1) aplicar();
+  else audio.addEventListener('loadedmetadata', aplicar, { once: true });
+}
 
 function pintarBotao() {
-  botao.dataset.mudo = String(audio.muted);
-  botao.setAttribute('aria-pressed', String(audio.muted));
-  botao.setAttribute('aria-label', audio.muted ? 'Ativar a música' : 'Silenciar a música');
+  const parada = audio.paused;
+  botao.dataset.mudo = String(parada);
+  botao.setAttribute('aria-pressed', String(parada));
+  botao.setAttribute('aria-label', parada ? 'Tocar a música' : 'Parar a música');
 }
 
 function tocar() {
@@ -57,21 +97,46 @@ function tocar() {
   if (p) p.catch(() => {}); // bloqueado: os ouvintes abaixo tentam de novo
 }
 
-tocar();
+audio.addEventListener('play', () => { mostrarTocador(true); pintarBotao(); });
+audio.addEventListener('pause', () => { mostrarTocador(false); pintarBotao(); });
+audio.addEventListener('timeupdate', pintarBarra);
+audio.addEventListener('loadedmetadata', pintarBarra);
+
+/* Terminou: para de vez. O disco e a barra somem, e a posição volta ao começo
+   para que o próximo toque no botão recomece a música do início. */
+audio.addEventListener('ended', () => {
+  audio.pause();
+  audio.currentTime = 0;
+  sessionStorage.setItem(CHAVE_TEMPO, '0');
+  sessionStorage.setItem(CHAVE_PAUSA, 'sim');
+  pintarBarra();
+  mostrarTocador(false);
+  pintarBotao();
+});
+
+// quem pausou numa página continua pausado na seguinte
+const pausadaAntes = sessionStorage.getItem(CHAVE_PAUSA) === 'sim';
+mostrarTocador(false);
+pintarBotao();
+if (!pausadaAntes) tocar();
 
 // se o navegador barrou o som, a primeira interação libera
 const gestos = ['pointerdown', 'keydown', 'touchstart', 'wheel'];
 function aoInteragir() {
+  if (sessionStorage.getItem(CHAVE_PAUSA) === 'sim') return;
   tocar();
   if (!audio.paused) gestos.forEach((g) => removeEventListener(g, aoInteragir));
 }
 gestos.forEach((g) => addEventListener(g, aoInteragir, { passive: true }));
 
 botao.addEventListener('click', () => {
-  audio.muted = !audio.muted;
-  localStorage.setItem(CHAVE_MUDO, audio.muted ? 'sim' : 'nao');
-  pintarBotao();
-  if (!audio.muted) tocar();
+  if (audio.paused) {
+    sessionStorage.setItem(CHAVE_PAUSA, 'nao');
+    tocar();
+  } else {
+    audio.pause();
+    sessionStorage.setItem(CHAVE_PAUSA, 'sim');
+  }
 });
 
 // guarda a posição de forma econômica (uma vez por segundo) e ao sair da página
