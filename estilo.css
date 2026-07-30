@@ -541,6 +541,19 @@ main [data-ancora]{ position:relative; }
 .bloco--alto .bloco__titulo{ margin-top:0; }
 .bloco--alto .bloco__texto{ padding-top:calc(18px + 1.2vw); }
 
+/* Duas faixas de foto + texto no mesmo bloco: a segunda foto acompanha o
+   segundo trecho, em vez de deixar meia coluna vazia.
+
+   Três linhas, e não duas: com duas, o título e o primeiro texto caíam na
+   mesma e se sobrepunham. A primeira foto atravessa as linhas 1 e 2 para
+   que o topo dela fique na altura do título. */
+.bloco--duplo{ grid-template-rows:auto auto auto; }
+.bloco--duplo .bloco__titulo{ grid-row:1; margin-top:0; }
+.bloco--duplo .bloco__foto{ grid-row:1 / 3; }
+.bloco--duplo .bloco__texto{ grid-row:2; padding-top:calc(18px + 1.2vw); }
+.bloco--duplo .bloco__foto--dois{ grid-row:3; margin-top:calc(30px + 2.5vw); }
+.bloco--duplo .bloco__texto--dois{ grid-row:3; padding-top:calc(30px + 2.5vw); }
+
 .bloco__endereco{ margin-top:32px; }
 .bloco__mapa{ margin-top:16px; }
 
@@ -551,7 +564,7 @@ main [data-ancora]{ position:relative; }
 .vestimenta__item{ margin:0; }
 .vestimenta__quem{
   font-family:var(--display);
-  font-weight:400;
+  font-weight:700;   /* separa a categoria do parágrafo que vem abaixo */
   font-size:var(--fs-titulo);
   line-height:var(--lh-h3);
 }
