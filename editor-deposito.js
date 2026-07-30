@@ -99,7 +99,13 @@ window.Deposito = (function () {
     const c = precisaConf();
     let r;
     try {
-      r = await fetch(`https://api.github.com/repos/${c.dono}/${c.repo}/${caminho}`, {
+      /* Sem barra sobrando quando não há complemento: o preflight de
+         .../repos/dono/repo/ volta 404, e um preflight que não dá 2xx faz o
+         navegador abortar antes de enviar — o erro chega como falha de rede,
+         escondendo a causa real. */
+      const alvo =
+        `https://api.github.com/repos/${c.dono}/${c.repo}` + (caminho ? `/${caminho}` : '');
+      r = await fetch(alvo, {
         ...opcoes,
         /* O mínimo possível de cabeçalhos. Cada um a mais entra na lista que
            o navegador precisa negociar antes de enviar, e proxies e antivírus
