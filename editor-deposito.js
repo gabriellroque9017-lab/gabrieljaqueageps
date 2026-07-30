@@ -69,16 +69,45 @@ window.Deposito = (function () {
     return c;
   }
 
+  /* Três sondas, da mais simples à mais parecida com a chamada real. A
+     primeira que falhar diz o que está no caminho. */
+  async function ondeTrava(c) {
+    const tentar = async (url, opcoes) => {
+      try { await fetch(url, { cache: 'no-store', ...opcoes }); return true; } catch { return false; }
+    };
+    const base = `https://api.github.com/repos/${c.dono}/${c.repo}`;
+
+    if (!(await tentar('https://api.github.com/'))) {
+      return 'Nem a api.github.com abre. É bloqueio de rede, antivírus ou firewall — ' +
+             'teste o celular usando dados móveis para confirmar.';
+    }
+    if (!(await tentar(base))) {
+      return 'A api.github.com abre, mas o endereço do seu repositório é barrado. ' +
+             'Parece filtro por endereço — típico de extensão bloqueadora.';
+    }
+    if (!(await tentar(base, { headers: { Authorization: 'Bearer ' + c.token } }))) {
+      return 'O repositório abre sem senha, mas a chamada autenticada é barrada. ' +
+             'Alguma coisa está derrubando a negociação prévia do navegador — ' +
+             'quase sempre antivírus com inspeção de HTTPS (Kaspersky, Avast, ESET) ' +
+             'ou uma extensão. Teste numa janela anônima; se funcionar, é extensão.';
+    }
+    return 'A chamada isolada passou, mas a do editor não. Tente de novo — ' +
+           'pode ter sido uma falha momentânea de rede.';
+  }
+
   async function api(caminho, opcoes = {}) {
     const c = precisaConf();
     let r;
     try {
       r = await fetch(`https://api.github.com/repos/${c.dono}/${c.repo}/${caminho}`, {
         ...opcoes,
+        /* O mínimo possível de cabeçalhos. Cada um a mais entra na lista que
+           o navegador precisa negociar antes de enviar, e proxies e antivírus
+           que inspecionam HTTPS costumam derrubar essa negociação.
+           X-GitHub-Api-Version é opcional; fora. */
         headers: {
           Authorization: 'Bearer ' + c.token,
           Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
           ...(opcoes.headers || {}),
         },
       });
@@ -86,18 +115,7 @@ window.Deposito = (function () {
       /* fetch só estoura assim quando a conexão nem aconteceu. Vale distinguir
          "a api.github.com está inalcançável" de "algo nesta chamada específica
          foi barrado" — o conserto é diferente em cada caso. */
-      let diagnostico;
-      try {
-        await fetch('https://api.github.com/', { method: 'GET', cache: 'no-store' });
-        diagnostico =
-          'A api.github.com responde, então o bloqueio é só nesta chamada — ' +
-          'quase sempre uma extensão do navegador. Tente numa janela anônima.';
-      } catch {
-        diagnostico =
-          'Nem um teste simples à api.github.com passou. É bloqueio de rede, ' +
-          'antivírus ou extensão. Abra https://api.github.com/ numa aba: se não carregar, é a rede.';
-      }
-      throw new Error('não consegui falar com o GitHub. ' + diagnostico);
+      throw new Error('não consegui falar com o GitHub. ' + (await ondeTrava(c)));
     }
     const corpo = await r.json().catch(() => ({}));
     if (!r.ok) {
