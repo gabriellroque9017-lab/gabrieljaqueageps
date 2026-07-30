@@ -257,13 +257,13 @@ a{ color:inherit; }
     font-size:clamp(26px, 3vw, 34px);
   }
 
-  /* precisa vencer .menu a, que também é classe + elemento */
+  /* No menu, o nome do casal é uma opção como as outras — mesma serifada,
+     mesmo corpo. A caligrafia fica reservada ao título da página, acima,
+     onde ela distingue em vez de competir.
+     O nome é longo, então só o corpo é limitado para não encostar nas
+     laterais numa tela estreita. */
   .menu a.menu__marca{
-    font-family:'Pinyon Script', var(--display);
-    /* a caligrafia lê menor que a serifa no mesmo corpo, mas o nome é longo:
-       o min() aumenta o corpo sem deixar encostar nas laterais da tela */
-    font-size:min(calc(var(--fs-menu) * 1.06), 7.2vw);
-    padding-block:.1em;
+    font-size:min(var(--fs-menu), 7.6vw);
   }
 
   /* páginas de capa clara usam tinta escura no cabeçalho; com o menu aberto
