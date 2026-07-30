@@ -207,7 +207,14 @@ a{ color:inherit; }
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding-top:365px;
+  /* Centrado na altura da tela, e não empurrado por um recuo fixo. O recuo
+     de 365px que havia aqui não se adaptava: numa tela de 640px os links
+     saíam pela parte de baixo e iam parar embaixo do disco da música.
+     Os 100px de folga em cima e embaixo respeitam o cabeçalho e o tocador. */
+  justify-content:center;
+  padding-block:100px;
+  /* numa tela muito baixa, rola em vez de cortar */
+  overflow-y:auto;
   opacity:0;
   visibility:hidden;
   transition:opacity .35s cubic-bezier(.2,.7,.3,1);
@@ -221,6 +228,8 @@ a{ color:inherit; }
   text-decoration:none;
   margin-bottom:24px;
 }
+/* sem a margem do último, o bloco fica de fato centrado */
+.menu a:last-child{ margin-bottom:0; }
 
 /* São seis links e um título em caligrafia, que é largo. Em 1150px os vãos
    chegam a 18px; abaixo disso os rótulos começam a se encostar e o cabeçalho
