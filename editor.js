@@ -20,6 +20,15 @@ const REMOTO = Deposito.modo() === 'github';
 const MARCA = 'editor:ligado';
 const pediuNoEndereco = /[?&]editar=1(&|$)/.test(location.search);
 
+/* Precisa ficar ACIMA da trava: quando o editor está desligado, o `return`
+   abaixo interrompe o arquivo, e um const declarado depois nunca passa a
+   existir — o painel do botão quebrava ao tentar lê-lo.
+
+   Estes três são sempre os mesmos, então já vêm preenchidos; só o token é
+   segredo. Deixá-los no código não abre brecha: o endereço do repositório é
+   público de qualquer jeito, e sem o token ninguém grava nada. */
+const PADRAO = { dono: 'gabriellroque9017-lab', repo: 'gabrieljaqueageps', ramo: 'main' };
+
 if (REMOTO) {
   if (pediuNoEndereco) sessionStorage.setItem(MARCA, '1');
   if (!sessionStorage.getItem(MARCA)) {
@@ -668,7 +677,7 @@ function prepararTextosLivres() {
    Conta do GitHub
    ------------------------------------------------------------ */
 function painelGitHub(entrando) {
-  const c = Deposito.conf() || {};
+  const c = { ...PADRAO, ...(Deposito.conf() || {}) };
   const painel = document.createElement('div');
   painel.className = 'ed-painel ed-painel--conta';
   painel.innerHTML =
@@ -678,7 +687,7 @@ function painelGitHub(entrando) {
     `<label>Usuário do GitHub<input class="ed-dono" value="${c.dono || ''}" placeholder="gabriellroque9017-lab"></label>` +
     `<label>Repositório<input class="ed-repo" value="${c.repo || ''}" placeholder="gabrieljaqueageps"></label>` +
     `<label>Ramo<input class="ed-ramo" value="${c.ramo || 'main'}"></label>` +
-    `<label>Token<input class="ed-token" type="password" value="${c.token || ''}" placeholder="github_pat_..."></label>` +
+    `<label>Token — o único que falta<input class="ed-token" type="password" value="${c.token || ''}" placeholder="cole aqui o github_pat_..."></label>` +
     '<label class="ed-lembrar"><input type="checkbox" class="ed-check"' + (c.lembrar === false ? '' : ' checked') + '>' +
     'Manter salvo neste aparelho</label>' +
     '<span class="ed-painel__dica">Desmarque se este computador não for seu — aí os dados somem ao fechar a aba.</span>' +
@@ -687,7 +696,8 @@ function painelGitHub(entrando) {
     '<button type="button" class="ed-painel__nao">Cancelar</button></div>' +
     '<button type="button" class="ed-painel__limpar">Esquecer estes dados</button>';
   document.body.appendChild(painel);
-  painel.querySelector('.ed-dono').focus();
+  // o cursor já vai para o único campo que a pessoa precisa preencher
+  painel.querySelector('.ed-token').focus();
 
   painel.querySelector('.ed-painel__nao').onclick = () => painel.remove();
   painel.querySelector('.ed-painel__limpar').onclick = () => {

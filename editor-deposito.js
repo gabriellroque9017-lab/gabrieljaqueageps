@@ -82,9 +82,22 @@ window.Deposito = (function () {
           ...(opcoes.headers || {}),
         },
       });
-    } catch {
-      // fetch só estoura assim quando a conexão nem aconteceu
-      throw new Error('não consegui falar com o GitHub. Sem internet, ou algum bloqueador na frente?');
+    } catch (e) {
+      /* fetch só estoura assim quando a conexão nem aconteceu. Vale distinguir
+         "a api.github.com está inalcançável" de "algo nesta chamada específica
+         foi barrado" — o conserto é diferente em cada caso. */
+      let diagnostico;
+      try {
+        await fetch('https://api.github.com/', { method: 'GET', cache: 'no-store' });
+        diagnostico =
+          'A api.github.com responde, então o bloqueio é só nesta chamada — ' +
+          'quase sempre uma extensão do navegador. Tente numa janela anônima.';
+      } catch {
+        diagnostico =
+          'Nem um teste simples à api.github.com passou. É bloqueio de rede, ' +
+          'antivírus ou extensão. Abra https://api.github.com/ numa aba: se não carregar, é a rede.';
+      }
+      throw new Error('não consegui falar com o GitHub. ' + diagnostico);
     }
     const corpo = await r.json().catch(() => ({}));
     if (!r.ok) {
