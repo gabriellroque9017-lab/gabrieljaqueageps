@@ -412,10 +412,41 @@ const FONTES = [
   ['caligrafia', 'Caligrafia (Pinyon)'],
 ];
 
+/* O campo editável do navegador é generoso demais: ao digitar ele cria <div>
+   para cada linha, e ao colar traz <span style="font-size:49.8256px"> e
+   companhia. Isso ia parar no HTML e travava o tamanho da letra, quebrando a
+   escala tipográfica no celular. Aqui sai tudo o que não for conteúdo. */
+const PERMITIDAS = new Set(['B', 'STRONG', 'I', 'EM', 'BR', 'A', 'CODE', 'SPAN']);
+
+function limparMarcacao(no) {
+  [...no.children].forEach((f) => {
+    limparMarcacao(f);
+
+    // estilo embutido nunca sobrevive: é ele que quebra a tipografia fluida
+    f.removeAttribute('style');
+    f.removeAttribute('class');
+
+    // <div> e <p> criados pelo navegador viram quebra de linha — mas não
+    // antes do primeiro, senão o texto começa com uma linha vazia
+    if (f.tagName === 'DIV' || f.tagName === 'P') {
+      const primeiro = f.previousSibling === null;
+      const conteudo = [...f.childNodes];
+      const br = () => document.createElement('br');
+      if (!conteudo.length || !f.innerHTML.trim()) f.replaceWith(br());
+      else f.replaceWith(...(primeiro ? conteudo : [br(), ...conteudo]));
+      return;
+    }
+    // <span> sem nada dentro que o justifique some, deixando o texto
+    if (f.tagName === 'SPAN' && !f.attributes.length) f.replaceWith(...f.childNodes);
+    else if (!PERMITIDAS.has(f.tagName)) f.replaceWith(...f.childNodes);
+  });
+}
+
 function conteudoLimpo(el) {
   const copia = el.cloneNode(true);
   copia.querySelectorAll('.ed-alca, .ed-apagar, .ed-botao, .ed-ordem').forEach((n) => n.remove());
-  return copia.innerHTML.trim();
+  limparMarcacao(copia);
+  return copia.innerHTML.replace(/(<br>\s*){3,}/g, '<br><br>').trim();
 }
 
 /* ---- largura da caixa ---- */
