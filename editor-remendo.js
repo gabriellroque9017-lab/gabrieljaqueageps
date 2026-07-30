@@ -20,8 +20,13 @@ window.Remendo = (function () {
     return html.replace(alvo, (tag) => tag.replace(/src="[^"]*"/, `src="${caminho}"`));
   }
 
-  /* ---------- mosaico do Portfolio ---------- */
-  const SECAO_MOSAICO = /<section class="mosaico"[\s\S]*?<\/section>/;
+  /* ---------- mosaico do Portfolio ----------
+     A busca precisa aceitar outros atributos antes do class: a seção ganhou
+     data-ancora quando os textos soltos passaram a existir, e a versão
+     estrita parou de casar — o Portfolio deixava de receber as fotos sem
+     dar erro nenhum. */
+  const SECAO_MOSAICO = /<section[^>]*class="mosaico"[^>]*>[\s\S]*?<\/section>/;
+  const ABERTURA_MOSAICO = /<section[^>]*class="mosaico"[^>]*>/;
   const FIGURA = /<figure data-proporcao="([^"]+)"><img src="([^"]+)"[^>]*><\/figure>/g;
   const PROPORCOES = ['alto', 'retrato', 'paisagem', 'quadrado'];
 
@@ -45,8 +50,13 @@ window.Remendo = (function () {
     lista.forEach((f, i) => colunas[i % 2].push(f));
     const desenhar = (fs) =>
       fs.map((f) => `        <figure data-proporcao="${f.proporcao}"><img src="${f.src}" alt="" loading="lazy"></figure>`).join('\n');
+
+    /* reaproveita a tag de abertura original em vez de reescrevê-la: assim o
+       data-ancora e qualquer outro atributo sobrevivem à reordenação */
+    const abertura = (html.match(ABERTURA_MOSAICO) || ['<section class="mosaico" aria-label="Fotos do casal">'])[0];
+
     const nova =
-      '<section class="mosaico" aria-label="Fotos do casal">\n' +
+      abertura + '\n' +
       `      <div class="mosaico__coluna mosaico__coluna--1">\n${desenhar(colunas[0])}\n      </div>\n\n` +
       `      <div class="mosaico__coluna mosaico__coluna--2">\n${desenhar(colunas[1])}\n      </div>\n    </section>`;
     return html.replace(SECAO_MOSAICO, nova);

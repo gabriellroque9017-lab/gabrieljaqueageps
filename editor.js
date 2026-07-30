@@ -171,6 +171,36 @@ async function subirImagem(arquivo, largura, prefixo) {
   return r && r.caminho ? r.caminho : caminho;
 }
 
+/* ------------------------------------------------------------
+   Toda foto nova também entra no Portfolio
+   ------------------------------------------------------------
+   Vale para qualquer lugar do site: capa, blocos, faixa de Nossa
+   História, hospedagens. A pessoa troca uma foto uma vez e ela já
+   fica guardada na galeria, sem precisar repetir o trabalho lá.
+
+   No próprio Portfolio isso não roda — ali a foto já entrou.
+   E não duplica: se o caminho já estiver no mosaico, sai fora. */
+const PROPORCOES_PORTFOLIO = ['alto', 'retrato', 'paisagem', 'quadrado'];
+
+async function levarAoPortfolio(...caminhos) {
+  if (PAGINA === 'portfolio.html') return;
+  try {
+    const { texto, sha } = await Deposito.ler('portfolio.html');
+    const novas = caminhos.filter((c) => c && !texto.includes(`src="${c}"`));
+    if (!novas.length) return;
+
+    await Deposito.gravar(
+      'portfolio.html',
+      Remendo.mosaico(texto, 'adicionar', { caminhos: novas }),
+      'site: foto também no Portfolio',
+      sha
+    );
+  } catch (e) {
+    // uma falha aqui não pode desfazer a troca da foto, que já deu certo
+    aviso('Foto trocada, mas não consegui pôr no Portfolio: ' + e.message, 'erro', true);
+  }
+}
+
 function escolherArquivo(multiplo = false) {
   return new Promise((ok) => {
     const campo = document.createElement('input');
@@ -189,6 +219,7 @@ async function trocarFoto(img, arquivo) {
   const chave = img.dataset.editavel;
   try {
     const caminho = await subirImagem(arquivo, larguraAlvo(img), chave);
+    await levarAoPortfolio(caminho);
     await operar((html) => Remendo.trocarFoto(html, chave, caminho), 'site: troca de foto');
   } catch (e) {
     aviso('Não deu: ' + e.message, 'erro', true);
@@ -335,6 +366,7 @@ function prepararGaleria() {
       if (!arq) return;
       try {
         const caminho = await subirImagem(arq, 1600, 'galeria');
+        await levarAoPortfolio(caminho);
         await operar((html) => Remendo.galeria(html, 'trocar', { indice: i, caminho }), 'site: troca de foto na faixa');
       } catch (err) { aviso('Não deu: ' + err.message, 'erro', true); }
     };
@@ -358,6 +390,7 @@ function prepararGaleria() {
       if (!arq) return;
       try {
         const caminho = await subirImagem(arq, 1600, 'galeria');
+        await levarAoPortfolio(caminho);
         await operar((html) => Remendo.galeria(html, 'trocar', { indice: i, caminho }), 'site: troca de foto na faixa');
       } catch (err) { aviso('Não deu: ' + err.message, 'erro', true); }
     });
@@ -367,6 +400,7 @@ function prepararGaleria() {
     try {
       const caminhos = [];
       for (const a of arqs) caminhos.push(await subirImagem(a, 1600, 'galeria'));
+      await levarAoPortfolio(...caminhos);
       await operar((html) => Remendo.galeria(html, 'adicionar', { caminhos }), 'site: fotos novas na faixa');
     } catch (e) { aviso('Não deu: ' + e.message, 'erro', true); }
   };
