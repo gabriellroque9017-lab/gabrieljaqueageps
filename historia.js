@@ -1,16 +1,26 @@
-// ---- fotos estilo scrapbook: deslizam e param tortas ----
-const fotos = [...document.querySelectorAll('.abertura__foto, .retrato__foto')];
-const aguardando = new Set(fotos);
+// ---- fotos que entram pelo lado ----
+//
+// A foto se revela quando entra na tela e volta a se esconder quando sai por
+// baixo. Assim, subir a página desfaz a entrada, e descer de novo a repete —
+// em vez de revelar uma vez e nunca mais, como era antes.
+//
+// Por isso o observador não é desligado depois de revelar.
 
-function revelar(el) {
-  el.classList.add('revelada');
-  aguardando.delete(el);
-  observador.unobserve(el);
-}
+const fotos = [...document.querySelectorAll('.abertura__foto, .retrato__foto, .capitulo__foto')];
 
 const observador = new IntersectionObserver(
-  (entradas) => entradas.forEach((e) => e.isIntersecting && revelar(e.target)),
-  { rootMargin: '0px 0px -14% 0px', threshold: 0.1 }
+  (entradas) =>
+    entradas.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.add('revelada');
+        return;
+      }
+      // Só esconde de novo quando a foto sai por BAIXO — ou seja, quando a
+      // pessoa subiu a página. Saindo por cima ela fica revelada: ver uma
+      // foto se desmontar ao rolar para baixo seria estranho.
+      if (e.boundingClientRect.top > 0) e.target.classList.remove('revelada');
+    }),
+  { rootMargin: '0px 0px -12% 0px', threshold: 0.15 }
 );
 fotos.forEach((f) => observador.observe(f));
 
@@ -43,10 +53,6 @@ function aoRolar() {
   requestAnimationFrame(() => {
     agendado = false;
     desenhar();
-    // rede de segurança para quem pula direto no meio da página
-    aguardando.forEach((el) => {
-      if (el.getBoundingClientRect().top < innerHeight * 0.86) revelar(el);
-    });
   });
 }
 

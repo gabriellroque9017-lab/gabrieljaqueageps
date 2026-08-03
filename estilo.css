@@ -968,6 +968,82 @@ html:not(.js) .coluna__foto img:first-of-type{ opacity:1; }
 }
 .abertura__foto img{ width:100%; height:100%; object-fit:cover; }
 
+/* ============================================================
+   Nossa História — a história em capítulos
+   ------------------------------------------------------------
+   O texto era um único parágrafo de 18 blocos, que virava uma
+   parede. Aqui ele respira: capítulos alternando lado com foto,
+   marcos isolados nos pontos de virada, e uma fala destacada.
+   ============================================================ */
+
+/* a frase de abertura, sozinha e centrada */
+.abre{ padding-block:calc(40px + 4vw) calc(20px + 2vw); }
+.abre__texto{
+  grid-column:5 / 21;
+  text-align:center;
+  text-wrap:balance;
+}
+
+/* capítulo: texto de um lado, foto do outro */
+.capitulo{
+  align-items:center;
+  padding-block:calc(26px + 3vw);
+}
+.capitulo__foto{
+  grid-column:2 / 12;
+  margin:0;
+  aspect-ratio:4 / 5;
+  overflow:hidden;
+  position:relative;
+}
+.capitulo__foto img{ width:100%; height:100%; object-fit:cover; }
+.capitulo__texto{ grid-column:14 / 24; }
+.capitulo__texto p{
+  font-size:var(--fs-grande);
+  line-height:var(--lh-texto);
+  text-align:left;
+}
+/* invertido: foto à direita */
+.capitulo--invertido .capitulo__foto{ grid-column:14 / 24; }
+.capitulo--invertido .capitulo__texto{ grid-column:2 / 12; }
+
+/* marco: a frase que vira a história, sozinha e maior */
+.marco{ padding-block:calc(36px + 4vw); }
+.marco__texto{
+  grid-column:4 / 22;
+  text-align:center;
+  text-wrap:balance;
+  font-style:italic;
+}
+
+/* fala: o que a Ana Luiza disse */
+.fala{ padding-block:calc(14px + 1.5vw) calc(26px + 3vw); }
+.fala__texto{
+  grid-column:6 / 20;
+  margin:0;
+  text-align:center;
+  font-family:var(--display);
+  font-size:var(--fs-h3);
+  line-height:var(--lh-h3);
+  text-wrap:balance;
+}
+
+/* fecho: as duas últimas frases */
+.fecho{ padding-block:calc(30px + 3vw) calc(46px + 5vw); }
+.fecho__texto{
+  grid-column:5 / 21;
+  text-align:center;
+  font-size:var(--fs-grande);
+  line-height:var(--lh-texto);
+  text-wrap:balance;
+}
+.fecho__ultima{
+  grid-column:5 / 21;
+  margin-top:calc(18px + 1.6vw);
+  text-align:center;
+  font-style:italic;
+}
+
 .citacao{
   align-content:start;
   min-height:calc(237.9px + 5.7692vw);
@@ -1021,25 +1097,44 @@ html:not(.js) .coluna__foto img:first-of-type{ opacity:1; }
 .trilha__videira path{ fill:none; stroke:currentColor; }
 
 /* ------------------------------------------------------------
-   Scrapbook: as fotos deslizam e param tortas, com sombra baixa,
-   como recortes largados sobre a mesa. Bem devagar.
+   As fotos entram pelo lado em que moram e se assentam retas.
+   Sem inclinação: a foto chega deslizando do canto e para.
+
+   Ao subir a página ela volta de onde veio, então a entrada
+   acontece de novo a cada passagem — não é uma revelação única.
+   Só transform e opacity animam; os dois rodam na placa de vídeo.
    ------------------------------------------------------------ */
 .abertura__foto,
-.retrato__foto{
+.retrato__foto,
+.capitulo__foto{
   box-shadow:0 26px 50px -30px rgba(46,49,5,.45), 0 6px 14px -10px rgba(46,49,5,.3);
 }
 .js .abertura__foto,
-.js .retrato__foto{
+.js .retrato__foto,
+.js .capitulo__foto{
   opacity:0;
-  transform:translateY(46px) rotate(0deg);
+  transform:translateX(var(--de, -7%));
+  transition:transform 1.4s cubic-bezier(.22,.72,.28,1), opacity 1s ease-out;
+  will-change:transform, opacity;
 }
 .js .abertura__foto.revelada,
-.js .retrato__foto.revelada{
+.js .retrato__foto.revelada,
+.js .capitulo__foto.revelada{
   opacity:1;
-  transition:transform 2.1s cubic-bezier(.2,.72,.3,1), opacity 1.6s ease-out;
+  transform:none;
 }
-.js .abertura__foto.revelada{ transform:rotate(-0.7deg); }
-.js .retrato__foto.revelada{ transform:rotate(1.4deg); }
+
+/* de que lado cada uma entra */
+.js .capitulo__foto{ --de:-9%; }
+.js .capitulo--invertido .capitulo__foto{ --de:9%; }
+.js .retrato__foto{ --de:9%; }
+.js .abertura__foto{ --de:-5%; }   /* largura inteira: deslocamento curto */
+
+@media (prefers-reduced-motion:reduce){
+  .js .abertura__foto,
+  .js .retrato__foto,
+  .js .capitulo__foto{ transform:none; transition:opacity .4s ease-out; }
+}
 
 .resto{
   background:var(--marfim);
@@ -1461,6 +1556,26 @@ html:not(.js) .mosaico figure::after{ display:none; }
   .resto__texto{ grid-column:1 / 9; }
 
   .galeria{ padding-block:0; }
+
+  /* --- Nossa História no celular: tudo empilha, foto acima do texto --- */
+  .abre__texto,
+  .marco__texto,
+  .fala__texto,
+  .fecho__texto,
+  .fecho__ultima{ grid-column:1 / 9; }
+
+  .capitulo{ padding-block:26px; }
+  .capitulo__foto,
+  .capitulo--invertido .capitulo__foto{
+    grid-column:1 / 9;
+    aspect-ratio:1 / 1;      /* mais baixa: uma 4/5 come meia tela */
+    margin-bottom:20px;
+  }
+  .capitulo__texto,
+  .capitulo--invertido .capitulo__texto{ grid-column:1 / 9; }
+  .capitulo__texto p{ font-size:17px; line-height:1.62; text-align:left; }
+
+  .fecho__texto{ font-size:17px; line-height:1.62; }
 
   /* --------------------------------------------------------
      Texto corrido no celular
