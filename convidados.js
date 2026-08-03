@@ -6,8 +6,7 @@
 
    O motivo é simples: este arquivo é público. Qualquer convidado abre
    o código-fonte e lê tudo que estiver dentro dele. Com a lista lá,
-   o navegador só recebe os nomes que combinam com o que foi digitado —
-   e nunca menos de quatro letras, senão dava para varrer o alfabeto.
+   o navegador só recebe os nomes que combinam com o que foi digitado.
    ============================================================ */
 (function () {
 
@@ -17,7 +16,7 @@
    Depois de implantar o Apps Script, cole aqui a URL que ele dá.
    Ela termina em /exec.
    ------------------------------------------------------------ */
-const SERVIDOR = '';   // ex.: https://script.google.com/macros/s/AKfy.../exec
+const SERVIDOR = 'https://script.google.com/macros/s/AKfycby2vLzCwrnRtbxTWlNhZJkafBNYoMkI9BdrmGtH6V37DvpRNi3zQV3DiIEOxXDf0JeghA/exec';
 
 /* Onde o nome e o traje são escritos no convite. São proporções do
    tamanho da imagem (0 a 1), então valem para qualquer resolução do PNG.
@@ -96,7 +95,9 @@ secao.querySelectorAll('[data-voltar]').forEach((b) =>
 /* ------------------------------------------------------------
    1. Procurar
    ------------------------------------------------------------ */
-const MINIMO = 4;
+/* Precisa bater com o MINIMO_LETRAS do Apps Script. Se aqui for maior, o
+   site trava a busca antes mesmo de perguntar, e nomes curtos somem. */
+const MINIMO = 2;
 let aguardando;
 
 campoProcura.addEventListener('input', () => {
