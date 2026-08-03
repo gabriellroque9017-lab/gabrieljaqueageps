@@ -27,15 +27,31 @@ window.Remendo = (function () {
      dar erro nenhum. */
   const SECAO_MOSAICO = /<section[^>]*class="mosaico"[^>]*>[\s\S]*?<\/section>/;
   const ABERTURA_MOSAICO = /<section[^>]*class="mosaico"[^>]*>/;
-  const FIGURA = /<figure data-proporcao="([^"]+)"><img src="([^"]+)"[^>]*><\/figure>/g;
-  const PROPORCOES = ['alto', 'retrato', 'paisagem', 'quadrado'];
+  /* width/height são a medida real do arquivo. É o que faz cada foto aparecer
+     inteira: a moldura toma a forma da imagem em vez de recortá-la numa das
+     quatro proporções fixas de antes. Precisam sobreviver a toda reordenação. */
+  const FIGURA = /<figure([^>]*)><img src="([^"]+)"([^>]*)><\/figure>/g;
+  const MEDIDA = (attrs, qual) => (attrs.match(new RegExp(`${qual}="(\\d+)"`)) || [])[1] || null;
 
+  /* data-n guarda a posição da foto na lista. Sem ele ler e escrever deixariam
+     de ser operações inversas — as colunas não têm mais o mesmo número de
+     fotos, então não dá para deduzir a ordem intercalando-as, e cada edição
+     salva embaralharia um pouco mais o mosaico. */
   function lerMosaico(html) {
     const secao = html.match(SECAO_MOSAICO);
     if (!secao) naoAchei('o mosaico');
     const colunas = [...secao[0].matchAll(/mosaico__coluna--(\d)">([\s\S]*?)<\/div>/g)]
-      .map((m) => [...m[2].matchAll(FIGURA)].map((f) => ({ proporcao: f[1], src: f[2] })));
-    // a ordem que a pessoa enxerga é esquerda→direita, linha a linha
+      .map((m) => [...m[2].matchAll(FIGURA)].map((f) => ({
+        src: f[2],
+        larg: MEDIDA(f[3], 'width'),
+        alt: MEDIDA(f[3], 'height'),
+        n: Number(MEDIDA(f[1], 'data-n')),
+      })));
+
+    const todas = [...(colunas[0] || []), ...(colunas[1] || [])];
+    if (todas.every((f) => Number.isFinite(f.n))) return todas.sort((a, b) => a.n - b.n);
+
+    // ainda sem data-n (primeira gravação): a ordem antiga era intercalada
     const lista = [];
     const maior = Math.max(colunas[0]?.length || 0, colunas[1]?.length || 0);
     for (let i = 0; i < maior; i++) {
@@ -46,10 +62,23 @@ window.Remendo = (function () {
   }
 
   function escreverMosaico(html, lista) {
+    /* Cada foto vai para a coluna que estiver mais curta naquele momento, e não
+       alternando uma a uma. Como as alturas agora são as reais das fotos, o
+       revezamento cego deixaria uma coluna terminar muito antes da outra. */
     const colunas = [[], []];
-    lista.forEach((f, i) => colunas[i % 2].push(f));
+    const altura = [0, 0];
+    lista.forEach((f, n) => {
+      const i = altura[0] <= altura[1] ? 0 : 1;
+      colunas[i].push({ ...f, n });
+      // altura relativa a uma largura de coluna igual a 1
+      altura[i] += f.larg && f.alt ? Number(f.alt) / Number(f.larg) : 1.25;
+    });
+
     const desenhar = (fs) =>
-      fs.map((f) => `        <figure data-proporcao="${f.proporcao}"><img src="${f.src}" alt="" loading="lazy"></figure>`).join('\n');
+      fs.map((f) => {
+        const medida = f.larg && f.alt ? ` width="${f.larg}" height="${f.alt}"` : '';
+        return `        <figure data-n="${f.n}"><img src="${f.src}"${medida} alt="" loading="lazy"></figure>`;
+      }).join('\n');
 
     /* reaproveita a tag de abertura original em vez de reescrevê-la: assim o
        data-ancora e qualquer outro atributo sobrevivem à reordenação */
@@ -69,11 +98,16 @@ window.Remendo = (function () {
       const [item] = lista.splice(dados.de, 1);
       if (item) lista.splice(dados.para, 0, item);
     } else if (acao === 'adicionar') {
-      dados.caminhos.forEach((src, i) =>
-        lista.push({ proporcao: PROPORCOES[(lista.length + i) % 4], src })
-      );
+      // fotos vem com a medida real; caminhos é a forma antiga, sem medida
+      const novas = dados.fotos || (dados.caminhos || []).map((src) => ({ src }));
+      novas.forEach((f) => lista.push({ src: f.src, larg: f.larg, alt: f.alt }));
     } else if (acao === 'trocar') {
-      if (lista[dados.indice]) lista[dados.indice].src = dados.caminho;
+      if (lista[dados.indice]) {
+        lista[dados.indice].src = dados.caminho;
+        // a foto nova tem outra forma; sem a medida certa a moldura recortaria
+        lista[dados.indice].larg = dados.larg || null;
+        lista[dados.indice].alt = dados.alt || null;
+      }
     } else throw new Error('ação desconhecida no mosaico: ' + acao);
     return escreverMosaico(html, lista);
   }

@@ -224,3 +224,13 @@ body[data-posicionando="true"] *{ cursor:crosshair !important; }
 .ed-faixa ~ .som, body:has(.ed-faixa) .som{ bottom:58px; }
 
 .ed-mais--sair{ background:rgba(24,26,3,.55); }
+
+/* "Ver sem editar" não grava nada — é só um jeito de olhar. O contorno em vez
+   do fundo cheio separa quem observa de quem altera. */
+.ed-mais--ver{
+  background:transparent;
+  border:1px solid rgba(24,26,3,.55);
+  color:#2E3105;
+}
+.ed-mais--ver:hover,
+.ed-mais--ver:focus-visible{ background:rgba(24,26,3,.86); color:#FEFFE9; }

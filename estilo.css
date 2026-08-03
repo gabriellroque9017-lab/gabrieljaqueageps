@@ -985,8 +985,11 @@ html:not(.js) .coluna__foto img:first-of-type{ opacity:1; }
 }
 
 /* capítulo: texto de um lado, foto do outro */
+/* Foto e texto começam na mesma linha, sempre. Centrado verticalmente, cada
+   capítulo escolhia uma altura diferente e o olho não achava eixo nenhum
+   descendo a página; alinhados pelo topo, existe uma régua só. */
 .capitulo{
-  align-items:center;
+  align-items:start;
   padding-block:calc(26px + 3vw);
 }
 .capitulo__foto{
@@ -998,14 +1001,24 @@ html:not(.js) .coluna__foto img:first-of-type{ opacity:1; }
 }
 .capitulo__foto img{ width:100%; height:100%; object-fit:cover; }
 .capitulo__texto{ grid-column:14 / 24; }
+/* Alinhamento óptico: a entrelinha larga deixa um vão em branco acima da
+   primeira letra. Sem isto o texto parece começar abaixo do topo da foto,
+   mesmo estando na mesma linha de grade. */
+.capitulo__texto > :first-child{
+  margin-top:calc((1 - var(--lh-texto)) * 0.5em);
+}
 .capitulo__texto p{
   font-size:var(--fs-grande);
   line-height:var(--lh-texto);
   text-align:left;
 }
-/* invertido: foto à direita */
-.capitulo--invertido .capitulo__foto{ grid-column:14 / 24; }
-.capitulo--invertido .capitulo__texto{ grid-column:2 / 12; }
+/* invertido: foto à direita, texto à esquerda.
+   grid-row:1 nos dois é obrigatório aqui. A foto vem antes no HTML e ocupa as
+   colunas da direita; sem a linha fixada, o texto — que quer colunas à
+   esquerda — não pode voltar atrás e a grade o empurra para a linha seguinte,
+   deixando-o quase 700px abaixo da foto em vez de ao lado dela. */
+.capitulo--invertido .capitulo__foto{ grid-column:14 / 24; grid-row:1; }
+.capitulo--invertido .capitulo__texto{ grid-column:2 / 12; grid-row:1; }
 
 /* marco: a frase que vira a história, sozinha e maior */
 .marco{ padding-block:calc(36px + 4vw); }
@@ -1125,6 +1138,34 @@ html:not(.js) .coluna__foto img:first-of-type{ opacity:1; }
 }
 
 /* de que lado cada uma entra */
+/* ------------------------------------------------------------
+   O texto sendo escrito conforme se desce
+   ------------------------------------------------------------
+   Cada trecho sobe um pouco e ganha corpo ao entrar na tela, e um espera o
+   outro dentro da mesma seção (--atraso-escrita, posto pelo historia.js).
+   É o escalonamento, não o movimento, que dá a sensação de escrita.
+
+   Sem .js nada disso existe: quem estiver com o JavaScript desligado lê a
+   história inteira normalmente.
+   ------------------------------------------------------------ */
+.js .escreve{
+  opacity:0;
+  transform:translateY(16px);
+  transition:
+    opacity .85s ease-out var(--atraso-escrita, 0ms),
+    transform 1.05s cubic-bezier(.22,.72,.28,1) var(--atraso-escrita, 0ms);
+  will-change:opacity, transform;
+}
+.js .escreve.escrito{
+  opacity:1;
+  transform:none;
+}
+
+/* quem prefere menos movimento recebe só o aparecer, sem deslocamento */
+@media (prefers-reduced-motion:reduce){
+  .js .escreve{ transform:none; transition:opacity .4s ease-out; }
+}
+
 .js .capitulo__foto{ --de:-9%; }
 .js .capitulo--invertido .capitulo__foto{ --de:9%; }
 .js .retrato__foto{ --de:9%; }
@@ -1224,6 +1265,12 @@ html:not(.js) .coluna__foto img:first-of-type{ opacity:1; }
 /* o desencontro entre as colunas é o que dá a assimetria */
 .mosaico__coluna--2{ margin-top:calc(40px + 5.5vw); }
 
+/* Cada foto entra inteira, na proporção que ela tem — sem recorte.
+   Antes as molduras impunham quatro proporções fixas e o object-fit:cover
+   comia as bordas; havia gente ficando de fora.
+
+   Quem dá o ritmo agora é o desencontro entre as duas colunas e a variação
+   natural de altura das fotos, não uma grade imposta por cima delas. */
 .mosaico figure{
   position:relative;
   margin:0;
@@ -1232,13 +1279,9 @@ html:not(.js) .coluna__foto img:first-of-type{ opacity:1; }
 }
 .mosaico img{
   width:100%;
-  height:100%;
-  object-fit:cover;
+  height:auto;
+  display:block;
 }
-.mosaico figure[data-proporcao="retrato"]  { aspect-ratio:4 / 5; }
-.mosaico figure[data-proporcao="quadrado"] { aspect-ratio:1 / 1; }
-.mosaico figure[data-proporcao="alto"]     { aspect-ratio:3 / 4; }
-.mosaico figure[data-proporcao="paisagem"] { aspect-ratio:5 / 4; }
 
 /* ------------------------------------------------------------
    Revelação por máscara: uma cortina da cor do fundo cobre a foto
@@ -1573,7 +1616,13 @@ html:not(.js) .mosaico figure::after{ display:none; }
   }
   .capitulo__texto,
   .capitulo--invertido .capitulo__texto{ grid-column:1 / 9; }
+  /* solta o grid-row:1 do computador: aqui foto e texto se empilham, e presos
+     na mesma linha eles se sobreporiam */
+  .capitulo--invertido .capitulo__foto,
+  .capitulo--invertido .capitulo__texto{ grid-row:auto; }
   .capitulo__texto p{ font-size:17px; line-height:1.62; text-align:left; }
+  /* empilhado, o texto vem embaixo da foto: não há topo com que se alinhar */
+  .capitulo__texto > :first-child{ margin-top:0; }
 
   .fecho__texto{ font-size:17px; line-height:1.62; }
 

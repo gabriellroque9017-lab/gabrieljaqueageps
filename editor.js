@@ -34,6 +34,41 @@ const pediuNoEndereco = /[?&]editar=1(&|$)/.test(location.search);
    público de qualquer jeito, e sem o token ninguém grava nada. */
 const PADRAO = { dono: 'gabriellroque9017-lab', repo: 'gabrieljaqueageps', ramo: 'main' };
 
+/* ------------------------------------------------------------
+   Prévia: ver o site como um convidado veria
+   ------------------------------------------------------------
+   No seu computador o editor liga sozinho, e com ele ligado os efeitos que
+   dependem de rolagem ficam desativados — texto invisível não daria para
+   clicar. Só que aí não dá para conferir como o texto aparece.
+
+   A prévia desliga o editor sem sair da pasta local. Fica guardada na aba,
+   então vale enquanto você navega, e um botão a qualquer momento volta atrás.
+   ------------------------------------------------------------ */
+const PREVIA = 'editor:previa';
+if (/[?&]ver=1(&|$)/.test(location.search)) sessionStorage.setItem(PREVIA, '1');
+if (/[?&]ver=0(&|$)/.test(location.search)) sessionStorage.removeItem(PREVIA);
+
+/* Só vale para quem estaria editando. No site publicado um convidado nunca
+   tem o editor ligado, e precisa continuar vendo o botão "editar" de sempre —
+   não um "voltar a editar" que não faria sentido para ele. */
+if (sessionStorage.getItem(PREVIA) && (!REMOTO || sessionStorage.getItem(MARCA))) {
+  botaoVoltarAEditar();
+  return;
+}
+
+function botaoVoltarAEditar() {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'ed-entrar';
+  b.textContent = 'voltar a editar';
+  b.title = 'Você está vendo o site como um convidado veria';
+  b.onclick = () => {
+    sessionStorage.removeItem(PREVIA);
+    location.reload();
+  };
+  document.body.appendChild(b);
+}
+
 if (REMOTO) {
   if (pediuNoEndereco) sessionStorage.setItem(MARCA, '1');
   if (!sessionStorage.getItem(MARCA)) {
@@ -161,6 +196,12 @@ function preparar(arquivo, largura) {
   });
 }
 
+/* O Portfolio precisa da medida real de cada foto para montar a moldura com a
+   forma dela, em vez de recortá-la. Como subirImagem devolve só o caminho — e é
+   chamada em muitos lugares — a medida fica guardada aqui e é consultada por
+   quem for escrever no mosaico. */
+const MEDIDAS = new Map();
+
 async function subirImagem(arquivo, largura, prefixo) {
   aviso('Preparando a imagem…', 'aguarde');
   const { dados, L, A } = await preparar(arquivo, largura);
@@ -168,8 +209,13 @@ async function subirImagem(arquivo, largura, prefixo) {
   aviso(`Enviando ${L}×${A}…`, 'aguarde');
   const r = await Deposito.gravarImagem(caminho, dados, 'site: foto nova');
   // o servidor local pode ter mudado o nome para evitar colisão
-  return r && r.caminho ? r.caminho : caminho;
+  const final = r && r.caminho ? r.caminho : caminho;
+  MEDIDAS.set(final, { larg: L, alt: A });
+  return final;
 }
+
+const comMedida = (caminhos) =>
+  caminhos.map((src) => ({ src, ...(MEDIDAS.get(src) || {}) }));
 
 /* ------------------------------------------------------------
    Toda foto nova também entra no Portfolio
@@ -180,7 +226,6 @@ async function subirImagem(arquivo, largura, prefixo) {
 
    No próprio Portfolio isso não roda — ali a foto já entrou.
    E não duplica: se o caminho já estiver no mosaico, sai fora. */
-const PROPORCOES_PORTFOLIO = ['alto', 'retrato', 'paisagem', 'quadrado'];
 
 async function levarAoPortfolio(...caminhos) {
   if (PAGINA === 'portfolio.html') return;
@@ -191,7 +236,7 @@ async function levarAoPortfolio(...caminhos) {
 
     await Deposito.gravar(
       'portfolio.html',
-      Remendo.mosaico(texto, 'adicionar', { caminhos: novas }),
+      Remendo.mosaico(texto, 'adicionar', { fotos: comMedida(novas) }),
       'site: foto também no Portfolio',
       sha
     );
@@ -307,7 +352,8 @@ function prepararMosaico() {
       if (!arq) return;
       try {
         const caminho = await subirImagem(arq, 1400, 'portfolio');
-        await operar((html) => Remendo.mosaico(html, 'trocar', { indice: i, caminho }), 'site: troca de foto no Portfolio');
+        const m = MEDIDAS.get(caminho) || {};
+          await operar((html) => Remendo.mosaico(html, 'trocar', { indice: i, caminho, ...m }), 'site: troca de foto no Portfolio');
       } catch (err) { aviso('Não deu: ' + err.message, 'erro', true); }
     });
   });
@@ -319,7 +365,7 @@ function prepararMosaico() {
       try {
         const caminhos = [];
         for (const a of arqs) caminhos.push(await subirImagem(a, 1400, 'portfolio'));
-        await operar((html) => Remendo.mosaico(html, 'adicionar', { caminhos }), 'site: fotos novas no Portfolio');
+        await operar((html) => Remendo.mosaico(html, 'adicionar', { fotos: comMedida(caminhos) }), 'site: fotos novas no Portfolio');
       } catch (e) { aviso('Não deu: ' + e.message, 'erro', true); }
     }
   );
@@ -827,7 +873,19 @@ function barra() {
   bNovo.textContent = '+ Adicionar texto';
   bNovo.onclick = painelNovoTexto;
 
-  b.append(bEditar, bNovo);
+  /* Ver o site sem o editor por cima. Serve principalmente para conferir os
+     efeitos que dependem de rolagem, que ficam desligados durante a edição. */
+  const bVer = document.createElement('button');
+  bVer.type = 'button';
+  bVer.className = 'ed-mais ed-mais--ver';
+  bVer.textContent = 'Ver sem editar';
+  bVer.title = 'Ver como um convidado veria — com os efeitos de rolagem ligados';
+  bVer.onclick = () => {
+    sessionStorage.setItem(PREVIA, '1');
+    location.reload();
+  };
+
+  b.append(bEditar, bNovo, bVer);
 
   if (REMOTO) {
     const bConta = document.createElement('button');
@@ -855,7 +913,8 @@ function tarja() {
     ? '<strong>Modo de edição — site publicado.</strong> Fica ligado nesta aba enquanto você navega. ' +
       'Cada mudança vira um commit no GitHub e entra no ar em ~1 min. ' +
       'Os convidados não veem nada disto.'
-    : '<strong>Modo de edição — seu computador.</strong> As mudanças são gravadas em <code>assets/</code> e no HTML pelo servidor local.';
+    : '<strong>Modo de edição — seu computador.</strong> As mudanças são gravadas em <code>assets/</code> e no HTML pelo servidor local. ' +
+      'Os efeitos de rolagem ficam desligados aqui — use <strong>Ver sem editar</strong> para conferi-los.';
   document.body.appendChild(f);
 }
 
