@@ -20,6 +20,39 @@ window.Remendo = (function () {
     return html.replace(alvo, (tag) => tag.replace(/src="[^"]*"/, `src="${caminho}"`));
   }
 
+  /* ---------- enquadramento de uma foto ----------
+     A moldura não muda de tamanho; o que muda é qual pedaço da foto aparece
+     dentro dela. Três números guardados no próprio style da imagem:
+
+       object-position  onde a foto encosta na moldura (o empurrão)
+       --z              a aproximação, de 1 (foto inteira) para cima
+       --tx / --ty      o deslocamento quando está aproximada
+
+     A classe "enquadrada" é o que liga a regra de transform no estilo.css.
+     Sem ela, fotos nunca enquadradas seguem exatamente como estavam — nenhum
+     transform novo aparece onde não foi pedido. */
+  function enquadrar(html, chave, q) {
+    const alvo = new RegExp(`<img[^>]*data-editavel="${chave}"[^>]*>`);
+    if (!alvo.test(html)) naoAchei('a foto ' + chave);
+
+    const n = (v, casas = 1) => Number(v).toFixed(casas).replace(/\.?0+$/, '') || '0';
+    const estilo =
+      `object-position:${n(q.ox)}% ${n(q.oy)}%;` +
+      `--z:${n(q.z, 3)};--tx:${n(q.tx)}%;--ty:${n(q.ty)}%`;
+
+    return html.replace(alvo, (tag) => {
+      let t = tag;
+      t = /style="[^"]*"/.test(t)
+        ? t.replace(/style="[^"]*"/, `style="${estilo}"`)
+        : t.replace(/<img/, `<img style="${estilo}"`);
+      t = /class="[^"]*"/.test(t)
+        ? t.replace(/class="([^"]*)"/, (m, c) =>
+            c.split(/\s+/).includes('enquadrada') ? m : `class="${c} enquadrada"`)
+        : t.replace(/<img/, '<img class="enquadrada"');
+      return t;
+    });
+  }
+
   /* ---------- mosaico do Portfolio ----------
      A busca precisa aceitar outros atributos antes do class: a seção ganhou
      data-ancora quando os textos soltos passaram a existir, e a versão
@@ -61,10 +94,14 @@ window.Remendo = (function () {
     return lista;
   }
 
-  function escreverMosaico(html, lista) {
-    /* Cada foto vai para a coluna que estiver mais curta naquele momento, e não
-       alternando uma a uma. Como as alturas agora são as reais das fotos, o
-       revezamento cego deixaria uma coluna terminar muito antes da outra. */
+  /* Cada foto vai para a coluna que estiver mais curta naquele momento, e não
+     alternando uma a uma. Como as alturas agora são as reais das fotos, o
+     revezamento cego deixaria uma coluna terminar muito antes da outra.
+
+     Exportada porque o editor precisa redesenhar o mosaico na tela com esta
+     mesma conta — duas implementações acabariam divergindo, e aí o que você vê
+     antes de salvar não seria o que fica salvo. */
+  function distribuir(lista) {
     const colunas = [[], []];
     const altura = [0, 0];
     lista.forEach((f, n) => {
@@ -73,6 +110,11 @@ window.Remendo = (function () {
       // altura relativa a uma largura de coluna igual a 1
       altura[i] += f.larg && f.alt ? Number(f.alt) / Number(f.larg) : 1.25;
     });
+    return colunas;
+  }
+
+  function escreverMosaico(html, lista) {
+    const colunas = distribuir(lista);
 
     const desenhar = (fs) =>
       fs.map((f) => {
@@ -213,7 +255,7 @@ window.Remendo = (function () {
   }
 
   return {
-    trocarFoto, mosaico, galeria, lerMosaico,
+    trocarFoto, enquadrar, mosaico, galeria, lerMosaico, distribuir,
     texto, textoNovo, textoMover, textoLargura, textoApagar,
   };
 })();

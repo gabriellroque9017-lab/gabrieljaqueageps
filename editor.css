@@ -225,6 +225,78 @@ body[data-posicionando="true"] *{ cursor:crosshair !important; }
 
 .ed-mais--sair{ background:rgba(24,26,3,.55); }
 
+/* O botão que de fato envia. Fundo claro e forte: é o único da barra com
+   consequência, e precisa se separar dos que só mexem na tela. */
+.ed-mais--salvar{
+  background:#DFE777; color:#2E3105; font-weight:600; opacity:1;
+}
+.ed-mais--salvar[data-tem="true"]{
+  box-shadow:0 0 0 2px rgba(122,139,46,.55);
+}
+.ed-mais--salvar:hover,
+.ed-mais--salvar:focus-visible{ background:#EAF08C; }
+
+/* ---- a pergunta antes de enviar ---- */
+.ed-veu{
+  position:fixed; inset:0; z-index:300;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(24,26,3,.55);
+}
+.ed-caixa{
+  width:min(400px, 90vw); padding:24px;
+  border-radius:4px; background:#2E3105; color:#FEFFE9;
+  display:flex; flex-direction:column; gap:12px;
+  font:400 14px/1.5 system-ui, sans-serif;
+  box-shadow:0 26px 60px -22px rgba(0,0,0,.7);
+}
+.ed-caixa strong{ font-size:16px; font-weight:600; line-height:1.35; }
+.ed-caixa p{ margin:0; opacity:.85; }
+.ed-caixa__acoes{ display:flex; gap:10px; margin-top:6px; }
+.ed-caixa__acoes button{
+  flex:1; padding:11px 0; border:0; border-radius:2px; cursor:pointer;
+  font:600 13px/1 system-ui, sans-serif;
+}
+
+/* ---- enquadrar ---- */
+.ed-botao--enq{ left:auto; right:10px; }
+
+.ed-enq__zoom{
+  display:flex; align-items:center; gap:10px;
+}
+.ed-enq__zoom span{
+  flex:1; text-align:center; font-variant-numeric:tabular-nums;
+  font-size:13px; opacity:.9;
+}
+.ed-enq__zoom button{
+  width:36px; height:32px; flex:none;
+  border:1px solid rgba(254,255,233,.35); border-radius:2px; cursor:pointer;
+  background:rgba(254,255,233,.08); color:#FEFFE9;
+  font:400 19px/1 system-ui, sans-serif;
+  transition:background-color .16s ease;
+}
+.ed-enq__zoom button:hover{ background:rgba(254,255,233,.22); }
+
+.ed-enq__cruz{
+  display:grid; gap:5px; justify-content:center;
+  grid-template-areas:". c ." "e m d" ". b .";
+}
+.ed-enq__cruz button{
+  width:38px; height:32px;
+  border:1px solid rgba(254,255,233,.35); border-radius:2px; cursor:pointer;
+  background:rgba(254,255,233,.08); color:#FEFFE9;
+  font:400 15px/1 system-ui, sans-serif;
+  transition:background-color .16s ease;
+}
+.ed-enq__cruz button:hover{ background:rgba(254,255,233,.22); }
+.ed-enq__cruz [data-centro]{ background:transparent; opacity:.6; }
+
+.ed-enq__zoom button:focus-visible,
+.ed-enq__cruz button:focus-visible{ outline:2px solid #DFE777; outline-offset:1px; }
+
+/* enquanto arrasta a foto dentro da moldura */
+[data-arrastando-foto="true"]{ cursor:grabbing; }
+[data-arrastando-foto="true"] img{ transition:none !important; }
+
 /* "Ver sem editar" não grava nada — é só um jeito de olhar. O contorno em vez
    do fundo cheio separa quem observa de quem altera. */
 .ed-mais--ver{

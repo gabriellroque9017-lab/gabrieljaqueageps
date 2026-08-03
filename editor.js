@@ -134,18 +134,136 @@ function aviso(texto, tipo = 'ok', fixo = false) {
 /* ------------------------------------------------------------
    O passo comum: ler o arquivo, costurar, gravar
    ------------------------------------------------------------ */
-async function operar(remendar, mensagem, recarregar = true) {
+/* ------------------------------------------------------------
+   A fila: nada vai embora antes de você mandar
+   ------------------------------------------------------------
+   Antes, cada mexida era uma ida ao GitHub — ler o arquivo, costurar, gravar,
+   esperar o commit. Vinte mexidas eram vinte esperas, e o site só ficava
+   inteiro no fim.
+
+   Agora cada mexida vira duas coisas: aparece na hora na página (para você
+   ver) e entra nesta fila (para ir depois). Ao salvar, cada arquivo é lido
+   uma vez, recebe todas as costuras na ordem, e é gravado uma vez só —
+   um commit por arquivo, não um por mexida.
+   ------------------------------------------------------------ */
+const Fila = {
+  imagens: [],   // { caminho, dados }
+  remendos: [],  // { arquivo, remendar, descricao }
+
+  quantas() { return this.imagens.length + this.remendos.length; },
+  vazia() { return this.quantas() === 0; },
+  limpar() { this.imagens = []; this.remendos = []; contadorFila(); },
+};
+
+function enfileirar(arquivo, remendar, descricao) {
+  Fila.remendos.push({ arquivo, remendar, descricao });
+  contadorFila();
+}
+
+/* Mantida a assinatura antiga: quem chamava operar() continua chamando igual.
+   O que mudou é que agora ela guarda em vez de gravar. */
+async function operar(remendar, mensagem) {
+  enfileirar(PAGINA, remendar, mensagem.replace(/^site:\s*/, ''));
+  return true;
+}
+
+function contadorFila() {
+  const b = document.querySelector('[data-salvar]');
+  if (!b) return;
+  const n = Fila.quantas();
+  b.textContent = n ? `Salvar edições (${n})` : 'Salvar edições';
+  b.dataset.tem = String(n > 0);
+}
+
+/* Fechar a aba com coisa na fila perderia tudo. */
+addEventListener('beforeunload', (e) => {
+  if (Fila.vazia()) return;
+  e.preventDefault();
+  e.returnValue = '';
+});
+
+/* ------------------------------------------------------------
+   Salvar de verdade
+   ------------------------------------------------------------ */
+async function salvarTudo() {
+  if (Fila.vazia()) { aviso('Não há nada para salvar.'); return; }
+
+  const quantas = Fila.quantas();
+  if (!(await perguntarSalvar(quantas))) return;
+
+  const imagens = [...Fila.imagens];
+  const remendos = [...Fila.remendos];
+
   try {
-    aviso('Gravando…', 'aguarde');
-    const { texto, sha } = await Deposito.ler(PAGINA);
-    const novo = await remendar(texto);
-    await Deposito.gravar(PAGINA, novo, mensagem, sha);
-    concluir(recarregar);
-    return true;
+    /* As fotos primeiro: o HTML vai apontar para elas, e um arquivo que
+       aponta para uma imagem que ainda não subiu mostraria quadrado vazio. */
+    for (let i = 0; i < imagens.length; i++) {
+      aviso(`Enviando foto ${i + 1} de ${imagens.length}…`, 'aguarde');
+      await Deposito.gravarImagem(imagens[i].caminho, imagens[i].dados, 'site: foto nova');
+    }
+
+    // um arquivo por vez, com todas as suas costuras de uma vez
+    const porArquivo = new Map();
+    remendos.forEach((r) => {
+      if (!porArquivo.has(r.arquivo)) porArquivo.set(r.arquivo, []);
+      porArquivo.get(r.arquivo).push(r);
+    });
+
+    let n = 0;
+    for (const [arquivo, lista] of porArquivo) {
+      aviso(`Gravando ${arquivo} (${++n} de ${porArquivo.size})…`, 'aguarde');
+      const { texto, sha } = await Deposito.ler(arquivo);
+      let html = texto;
+      for (const r of lista) html = await r.remendar(html);
+      await Deposito.gravar(arquivo, html, 'site: ' + resumir(lista), sha);
+    }
+
+    Fila.limpar();
+    aviso(
+      REMOTO
+        ? `${quantas} ${quantas === 1 ? 'mudança salva' : 'mudanças salvas'} no GitHub. ` +
+          'O site publicado se atualiza em cerca de 1 minuto.'
+        : `${quantas} ${quantas === 1 ? 'mudança salva' : 'mudanças salvas'}.`,
+      'ok', true
+    );
   } catch (e) {
-    aviso('Não deu: ' + e.message, 'erro', true);
-    return false;
+    /* A fila continua intacta: dá para corrigir o problema e mandar de novo
+       sem refazer nada. */
+    aviso('Não deu: ' + e.message + ' — nada foi perdido, tente salvar de novo.', 'erro', true);
   }
+}
+
+function resumir(lista) {
+  const contas = new Map();
+  lista.forEach((r) => contas.set(r.descricao, (contas.get(r.descricao) || 0) + 1));
+  return [...contas].map(([d, n]) => (n > 1 ? `${d} (${n}×)` : d)).join(', ');
+}
+
+function perguntarSalvar(quantas) {
+  return new Promise((responder) => {
+    const fundo = document.createElement('div');
+    fundo.className = 'ed-veu';
+    fundo.innerHTML = `
+      <div class="ed-caixa" role="dialog" aria-modal="true" aria-labelledby="ed-perg">
+        <strong id="ed-perg">Tem certeza que deseja fazer essas mudanças?</strong>
+        <p>${quantas} ${quantas === 1 ? 'alteração será enviada' : 'alterações serão enviadas'}${
+          REMOTO ? ' para o site publicado' : ''
+        }.</p>
+        <div class="ed-caixa__acoes">
+          <button type="button" class="ed-painel__ok" data-sim>Sim, salvar</button>
+          <button type="button" class="ed-painel__nao" data-nao>Não</button>
+        </div>
+      </div>`;
+    document.body.appendChild(fundo);
+
+    const fechar = (r) => { fundo.remove(); removeEventListener('keydown', tecla); responder(r); };
+    const tecla = (e) => { if (e.key === 'Escape') fechar(false); };
+    addEventListener('keydown', tecla);
+    fundo.querySelector('[data-sim]').onclick = () => fechar(true);
+    fundo.querySelector('[data-nao]').onclick = () => fechar(false);
+    fundo.onclick = (e) => { if (e.target === fundo) fechar(false); };
+    fundo.querySelector('[data-sim]').focus();
+  });
 }
 
 function concluir(recarregar) {
@@ -202,17 +320,37 @@ function preparar(arquivo, largura) {
    quem for escrever no mosaico. */
 const MEDIDAS = new Map();
 
+/* Guarda também o que já foi prometido nesta sessão: nomeLivre só enxerga o
+   que está no repositório, e duas fotos escolhidas antes de salvar receberiam
+   o mesmo nome — a segunda apagaria a primeira. */
+const RESERVADOS = new Set();
+
+/* Não envia: prepara, reserva o nome e põe na fila. Devolve o caminho na hora
+   para o HTML já poder apontar para ele. */
 async function subirImagem(arquivo, largura, prefixo) {
   aviso('Preparando a imagem…', 'aguarde');
   const { dados, L, A } = await preparar(arquivo, largura);
-  const caminho = await Deposito.nomeLivre(prefixo);
-  aviso(`Enviando ${L}×${A}…`, 'aguarde');
-  const r = await Deposito.gravarImagem(caminho, dados, 'site: foto nova');
-  // o servidor local pode ter mudado o nome para evitar colisão
-  const final = r && r.caminho ? r.caminho : caminho;
-  MEDIDAS.set(final, { larg: L, alt: A });
-  return final;
+
+  let caminho = await Deposito.nomeLivre(prefixo);
+  if (RESERVADOS.has(caminho)) {
+    const [, base, ext] = caminho.match(/^(.*?)(\.\w+)$/) || [, caminho, ''];
+    let n = 2;
+    while (RESERVADOS.has(`${base}-${n}${ext}`)) n++;
+    caminho = `${base}-${n}${ext}`;
+  }
+  RESERVADOS.add(caminho);
+
+  Fila.imagens.push({ caminho, dados });
+  MEDIDAS.set(caminho, { larg: L, alt: A });
+  PREVIAS.set(caminho, dados);   // para a página mostrar a foto antes de subir
+  contadorFila();
+  return caminho;
 }
+
+/* A foto ainda não existe no servidor, então o <img> aponta para os dados que
+   estão na memória. Some ao recarregar — mas aí ela já subiu. */
+const PREVIAS = new Map();
+const paraVer = (caminho) => PREVIAS.get(caminho) || caminho;
 
 const comMedida = (caminhos) =>
   caminhos.map((src) => ({ src, ...(MEDIDAS.get(src) || {}) }));
@@ -229,21 +367,23 @@ const comMedida = (caminhos) =>
 
 async function levarAoPortfolio(...caminhos) {
   if (PAGINA === 'portfolio.html') return;
-  try {
-    const { texto, sha } = await Deposito.ler('portfolio.html');
-    const novas = caminhos.filter((c) => c && !texto.includes(`src="${c}"`));
-    if (!novas.length) return;
+  const novas = caminhos.filter(Boolean);
+  if (!novas.length) return;
 
-    await Deposito.gravar(
-      'portfolio.html',
-      Remendo.mosaico(texto, 'adicionar', { fotos: comMedida(novas) }),
-      'site: foto também no Portfolio',
-      sha
-    );
-  } catch (e) {
-    // uma falha aqui não pode desfazer a troca da foto, que já deu certo
-    aviso('Foto trocada, mas não consegui pôr no Portfolio: ' + e.message, 'erro', true);
-  }
+  /* A conferência de repetida acontece na hora de gravar, não agora: só ali
+     se conhece o portfolio.html já com as costuras anteriores desta mesma
+     fila aplicadas. Feita aqui, duas fotos iguais escolhidas antes de salvar
+     entrariam as duas. */
+  enfileirar(
+    'portfolio.html',
+    (html) => {
+      const faltando = novas.filter((c) => !html.includes(`src="${c}"`));
+      return faltando.length
+        ? Remendo.mosaico(html, 'adicionar', { fotos: comMedida(faltando) })
+        : html;
+    },
+    'foto também no Portfolio'
+  );
 }
 
 function escolherArquivo(multiplo = false) {
@@ -266,6 +406,7 @@ async function trocarFoto(img, arquivo) {
     const caminho = await subirImagem(arquivo, larguraAlvo(img), chave);
     await levarAoPortfolio(caminho);
     await operar((html) => Remendo.trocarFoto(html, chave, caminho), 'site: troca de foto');
+    img.src = paraVer(caminho);   // aparece agora; sobe ao salvar
   } catch (e) {
     aviso('Não deu: ' + e.message, 'erro', true);
   }
@@ -285,7 +426,16 @@ function prepararFoto(img) {
     const [arq] = await escolherArquivo();
     if (arq) trocarFoto(img, arq);
   };
-  caixa.appendChild(botao);
+  const bEnq = document.createElement('button');
+  bEnq.type = 'button';
+  bEnq.className = 'ed-botao ed-botao--enq';
+  bEnq.textContent = 'Enquadrar';
+  bEnq.title = 'Escolher que pedaço da foto aparece na moldura';
+  bEnq.onclick = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    painelEnquadrar(img);
+  };
+  caixa.append(botao, bEnq);
 
   caixa.addEventListener('dragover', (e) => { e.preventDefault(); caixa.dataset.arrastando = 'true'; });
   caixa.addEventListener('dragleave', () => (caixa.dataset.arrastando = 'false'));
@@ -298,6 +448,167 @@ function prepararFoto(img) {
 }
 
 /* ------------------------------------------------------------
+   1b. Enquadrar: que pedaço da foto aparece na moldura
+   ------------------------------------------------------------
+   A moldura é intocável — o que se mexe é a foto dentro dela. São três
+   controles e três números:
+
+     aproximar   --z, de 1 para cima. Abaixo de 1 sobraria vazio na moldura,
+                 então 1 é o piso: é a foto preenchendo tudo.
+     mover       com --z em 1, empurra pelo object-position, que é como a foto
+                 já se acomodava. Aproximada, desloca pelo --tx/--ty, limitado
+                 ao que sobra para fora — assim nunca abre uma fresta.
+
+   Enquanto o painel está aberto o ajuste vale na foto de verdade, na página.
+   ------------------------------------------------------------ */
+function lerEnquadramento(img) {
+  const s = img.style;
+  const pos = (s.objectPosition || getComputedStyle(img).objectPosition || '50% 50%')
+    .split(/\s+/)
+    .map((v) => parseFloat(v));
+  return {
+    ox: Number.isFinite(pos[0]) ? pos[0] : 50,
+    oy: Number.isFinite(pos[1]) ? pos[1] : 50,
+    z: parseFloat(s.getPropertyValue('--z')) || 1,
+    tx: parseFloat(s.getPropertyValue('--tx')) || 0,
+    ty: parseFloat(s.getPropertyValue('--ty')) || 0,
+  };
+}
+
+/* Quanto dá para deslocar sem descobrir a moldura: aproximada em z, sobra
+   (z-1)/2 de cada lado, medido na escala de antes — daí o /z. */
+const limiteDeslocamento = (z) => (z <= 1 ? 0 : ((z - 1) / (2 * z)) * 100);
+
+function aplicarEnquadramento(img, q) {
+  const lim = limiteDeslocamento(q.z);
+  q.tx = Math.max(-lim, Math.min(lim, q.tx));
+  q.ty = Math.max(-lim, Math.min(lim, q.ty));
+  q.ox = Math.max(0, Math.min(100, q.ox));
+  q.oy = Math.max(0, Math.min(100, q.oy));
+
+  img.classList.add('enquadrada');
+  img.style.objectPosition = `${q.ox.toFixed(1)}% ${q.oy.toFixed(1)}%`;
+  img.style.setProperty('--z', q.z.toFixed(3));
+  img.style.setProperty('--tx', `${q.tx.toFixed(1)}%`);
+  img.style.setProperty('--ty', `${q.ty.toFixed(1)}%`);
+  return q;
+}
+
+function painelEnquadrar(img) {
+  document.querySelector('.ed-painel--enq')?.remove();
+
+  const chave = img.dataset.editavel;
+  const original = lerEnquadramento(img);
+  const marca = img.getAttribute('style') || '';
+  const tinhaClasse = img.classList.contains('enquadrada');
+  let q = { ...original };
+
+  const p = document.createElement('div');
+  p.className = 'ed-painel ed-painel--enq';
+  p.innerHTML = `
+    <strong>Enquadrar a foto</strong>
+    <p class="ed-painel__dica">A moldura não muda. Só o pedaço da foto que aparece nela.</p>
+    <div class="ed-enq__zoom">
+      <button type="button" data-z="-1" title="Afastar">−</button>
+      <span data-mostrar-z>100%</span>
+      <button type="button" data-z="1" title="Aproximar">+</button>
+    </div>
+    <div class="ed-enq__cruz">
+      <button type="button" data-mover="0,-1" title="Mover para cima" style="grid-area:c">↑</button>
+      <button type="button" data-mover="-1,0" title="Mover para a esquerda" style="grid-area:e">←</button>
+      <button type="button" data-centro title="Voltar ao meio" style="grid-area:m">•</button>
+      <button type="button" data-mover="1,0" title="Mover para a direita" style="grid-area:d">→</button>
+      <button type="button" data-mover="0,1" title="Mover para baixo" style="grid-area:b">↓</button>
+    </div>
+    <p class="ed-painel__dica" data-aviso-mover></p>
+    <div class="ed-painel__acoes">
+      <button type="button" class="ed-painel__ok">Aplicar</button>
+      <button type="button" class="ed-painel__nao">Cancelar</button>
+    </div>`;
+  document.body.appendChild(p);
+
+  const mostrarZ = p.querySelector('[data-mostrar-z]');
+  const avisoMover = p.querySelector('[data-aviso-mover]');
+
+  const redesenhar = () => {
+    q = aplicarEnquadramento(img, q);
+    mostrarZ.textContent = Math.round(q.z * 100) + '%';
+    avisoMover.textContent =
+      q.z > 1
+        ? 'Dá para mover em qualquer direção. Também dá para arrastar a foto.'
+        : 'Sem aproximação, a foto só corre no sentido em que ela sobra. Aproxime para mover livre.';
+  };
+  redesenhar();
+  img.scrollIntoView({ block: 'center', behavior: 'smooth' });
+
+  p.querySelectorAll('[data-z]').forEach((b) =>
+    (b.onclick = () => {
+      q.z = Math.max(1, Math.min(4, q.z + Number(b.dataset.z) * 0.1));
+      redesenhar();
+    })
+  );
+
+  /* Um passo é sempre a mesma fração da moldura, aproximada ou não — assim o
+     botão anda o mesmo tanto na tela nos dois casos. */
+  p.querySelectorAll('[data-mover]').forEach((b) =>
+    (b.onclick = () => {
+      const [dx, dy] = b.dataset.mover.split(',').map(Number);
+      if (q.z > 1) {
+        q.tx -= (dx * 4) / q.z;
+        q.ty -= (dy * 4) / q.z;
+      } else {
+        q.ox += dx * 4;
+        q.oy += dy * 4;
+      }
+      redesenhar();
+    })
+  );
+
+  p.querySelector('[data-centro]').onclick = () => {
+    q = { ox: 50, oy: 50, z: 1, tx: 0, ty: 0 };
+    redesenhar();
+  };
+
+  /* arrastar a própria foto */
+  const caixa = img.parentElement;
+  let de = null;
+  const pegar = (e) => {
+    if (q.z <= 1) return;
+    de = { x: e.clientX, y: e.clientY, tx: q.tx, ty: q.ty, l: caixa.clientWidth, a: caixa.clientHeight };
+    caixa.dataset.arrastandoFoto = 'true';
+    e.preventDefault();
+  };
+  const puxar = (e) => {
+    if (!de) return;
+    q.tx = de.tx + ((e.clientX - de.x) / de.l) * 100 / q.z;
+    q.ty = de.ty + ((e.clientY - de.y) / de.a) * 100 / q.z;
+    redesenhar();
+  };
+  const soltar = () => { de = null; caixa.dataset.arrastandoFoto = 'false'; };
+  caixa.addEventListener('pointerdown', pegar);
+  addEventListener('pointermove', puxar);
+  addEventListener('pointerup', soltar);
+
+  const desmontar = () => {
+    caixa.removeEventListener('pointerdown', pegar);
+    removeEventListener('pointermove', puxar);
+    removeEventListener('pointerup', soltar);
+    p.remove();
+  };
+
+  p.querySelector('.ed-painel__nao').onclick = () => {
+    if (marca) img.setAttribute('style', marca); else img.removeAttribute('style');
+    if (!tinhaClasse) img.classList.remove('enquadrada');
+    desmontar();
+  };
+
+  p.querySelector('.ed-painel__ok').onclick = () => {
+    desmontar();
+    operar((html) => Remendo.enquadrar(html, chave, q), 'site: enquadramento de foto', false);
+  };
+}
+
+/* ------------------------------------------------------------
    2. Portfolio
    ------------------------------------------------------------ */
 function ordemVisual() {
@@ -306,6 +617,55 @@ function ordemVisual() {
   const maior = Math.max(...colunas.map((c) => c.length), 0);
   for (let i = 0; i < maior; i++) colunas.forEach((c) => c[i] && lista.push(c[i]));
   return lista;
+}
+
+/* ------------------------------------------------------------
+   Redesenhar sem recarregar
+   ------------------------------------------------------------
+   Enquanto cada mexida ia direto para o GitHub, a página recarregava depois de
+   gravar e vinha pronta do servidor. Agora nada vai antes de você mandar, então
+   quem precisa mostrar o resultado é a própria página.
+
+   Para o Portfolio isso quer dizer remontar as duas colunas — e com a mesma
+   conta que o arquivo vai usar (Remendo.distribuir), senão o que você vê antes
+   de salvar não seria o que fica salvo.
+   ------------------------------------------------------------ */
+function listaDoMosaico() {
+  return ordemVisual().map((fig) => {
+    const img = fig.querySelector('img');
+    return {
+      src: img.dataset.caminho || img.getAttribute('src'),
+      larg: img.getAttribute('width'),
+      alt: img.getAttribute('height'),
+    };
+  });
+}
+
+function redesenharMosaico(lista) {
+  const colunas = [...document.querySelectorAll('.mosaico__coluna')];
+  if (colunas.length < 2) return;
+
+  Remendo.distribuir(lista).forEach((fotos, i) => {
+    colunas[i].replaceChildren(
+      ...fotos.map((f) => {
+        const fig = document.createElement('figure');
+        fig.dataset.n = f.n;
+        const img = document.createElement('img');
+        /* O src aponta para a prévia em memória quando a foto ainda não subiu;
+           data-caminho guarda o nome final, que é o que vai para o arquivo. */
+        img.src = paraVer(f.src);
+        img.dataset.caminho = f.src;
+        img.alt = '';
+        img.loading = 'lazy';
+        if (f.larg && f.alt) { img.width = f.larg; img.height = f.alt; }
+        fig.appendChild(img);
+        return fig;
+      })
+    );
+  });
+
+  document.querySelector('.mosaico ~ .ed-adicionar')?.remove();
+  prepararMosaico();
 }
 
 function prepararMosaico() {
@@ -330,6 +690,7 @@ function prepararMosaico() {
       e.stopPropagation();
       if (confirm('Apagar esta foto do Portfolio?')) {
         operar((html) => Remendo.mosaico(html, 'apagar', { indice: i }), 'site: foto removida do Portfolio');
+        const l = listaDoMosaico(); l.splice(i, 1); redesenharMosaico(l);
       }
     };
     fig.appendChild(apagar);
@@ -346,14 +707,18 @@ function prepararMosaico() {
       fig.dataset.sobre = 'false';
       const de = e.dataTransfer.getData('text/indice');
       if (de !== '') {
-        return operar((html) => Remendo.mosaico(html, 'mover', { de: Number(de), para: i }), 'site: Portfolio reordenado');
+        operar((html) => Remendo.mosaico(html, 'mover', { de: Number(de), para: i }), 'site: Portfolio reordenado');
+        const l = listaDoMosaico(); const [item] = l.splice(Number(de), 1);
+        if (item) l.splice(i, 0, item);
+        return redesenharMosaico(l);
       }
       const arq = e.dataTransfer.files[0];
       if (!arq) return;
       try {
         const caminho = await subirImagem(arq, 1400, 'portfolio');
         const m = MEDIDAS.get(caminho) || {};
-          await operar((html) => Remendo.mosaico(html, 'trocar', { indice: i, caminho, ...m }), 'site: troca de foto no Portfolio');
+        await operar((html) => Remendo.mosaico(html, 'trocar', { indice: i, caminho, ...m }), 'site: troca de foto no Portfolio');
+        const l = listaDoMosaico(); l[i] = { src: caminho, larg: m.larg, alt: m.alt }; redesenharMosaico(l);
       } catch (err) { aviso('Não deu: ' + err.message, 'erro', true); }
     });
   });
@@ -366,6 +731,7 @@ function prepararMosaico() {
         const caminhos = [];
         for (const a of arqs) caminhos.push(await subirImagem(a, 1400, 'portfolio'));
         await operar((html) => Remendo.mosaico(html, 'adicionar', { fotos: comMedida(caminhos) }), 'site: fotos novas no Portfolio');
+        redesenharMosaico([...listaDoMosaico(), ...comMedida(caminhos)]);
       } catch (e) { aviso('Não deu: ' + e.message, 'erro', true); }
     }
   );
@@ -375,6 +741,21 @@ function prepararMosaico() {
 /* ------------------------------------------------------------
    3. Faixa de fotos de Nossa História
    ------------------------------------------------------------ */
+/* Depois de tirar, acrescentar ou reordenar um quadro, os números e os botões
+   ficam apontando para as posições antigas. Limpa e monta de novo. */
+function refazerGaleria() {
+  const trilho = document.getElementById('trilho');
+  if (!trilho) return;
+  trilho.querySelectorAll('.ed-ordem, .ed-apagar, .ed-botao').forEach((n) => n.remove());
+  trilho.querySelectorAll('.galeria__quadro').forEach((q) => {
+    q.classList.remove('ed-item');
+    q.replaceWith(q.cloneNode(true));   // clone limpo: leva junto os ouvintes antigos
+  });
+  document.querySelector('.galeria ~ .ed-adicionar')?.remove();
+  document.querySelector('.ed-mais--faixa')?.remove();
+  prepararGaleria();
+}
+
 function prepararGaleria() {
   const trilho = document.getElementById('trilho');
   if (!trilho) return;
@@ -398,6 +779,7 @@ function prepararGaleria() {
       e.stopPropagation();
       if (confirm('Apagar esta foto da faixa?')) {
         operar((html) => Remendo.galeria(html, 'apagar', { indice: i }), 'site: foto removida da faixa');
+        quadro.remove(); refazerGaleria();
       }
     };
     quadro.appendChild(apagar);
@@ -414,6 +796,7 @@ function prepararGaleria() {
         const caminho = await subirImagem(arq, 1600, 'galeria');
         await levarAoPortfolio(caminho);
         await operar((html) => Remendo.galeria(html, 'trocar', { indice: i, caminho }), 'site: troca de foto na faixa');
+        quadro.querySelector('img').src = paraVer(caminho);
       } catch (err) { aviso('Não deu: ' + err.message, 'erro', true); }
     };
     quadro.appendChild(trocar);
@@ -430,7 +813,11 @@ function prepararGaleria() {
       quadro.dataset.sobre = 'false';
       const de = e.dataTransfer.getData('text/indice');
       if (de !== '') {
-        return operar((html) => Remendo.galeria(html, 'mover', { de: Number(de), para: i }), 'site: faixa reordenada');
+        operar((html) => Remendo.galeria(html, 'mover', { de: Number(de), para: i }), 'site: faixa reordenada');
+        const t = document.getElementById('trilho');
+        const movido = [...t.querySelectorAll('.galeria__quadro')][Number(de)];
+        if (movido) t.insertBefore(movido, quadro.nextSibling);
+        return refazerGaleria();
       }
       const arq = e.dataTransfer.files[0];
       if (!arq) return;
@@ -438,6 +825,7 @@ function prepararGaleria() {
         const caminho = await subirImagem(arq, 1600, 'galeria');
         await levarAoPortfolio(caminho);
         await operar((html) => Remendo.galeria(html, 'trocar', { indice: i, caminho }), 'site: troca de foto na faixa');
+        quadro.querySelector('img').src = paraVer(caminho);
       } catch (err) { aviso('Não deu: ' + err.message, 'erro', true); }
     });
   });
@@ -448,6 +836,15 @@ function prepararGaleria() {
       for (const a of arqs) caminhos.push(await subirImagem(a, 1600, 'galeria'));
       await levarAoPortfolio(...caminhos);
       await operar((html) => Remendo.galeria(html, 'adicionar', { caminhos }), 'site: fotos novas na faixa');
+      const t = document.getElementById('trilho');
+      caminhos.forEach((c) => {
+        const f = document.createElement('figure');
+        f.className = 'galeria__quadro';
+        const im = document.createElement('img');
+        im.src = paraVer(c); im.dataset.caminho = c; im.alt = ''; im.loading = 'lazy';
+        f.appendChild(im); t.appendChild(f);
+      });
+      refazerGaleria();
     } catch (e) { aviso('Não deu: ' + e.message, 'erro', true); }
   };
 
@@ -460,7 +857,7 @@ function prepararGaleria() {
 
   const mais = document.createElement('button');
   mais.type = 'button';
-  mais.className = 'ed-mais';
+  mais.className = 'ed-mais ed-mais--faixa';
   mais.textContent = '+ Adicionar foto';
   mais.onclick = async () => {
     const arqs = await escolherArquivo(true);
@@ -885,7 +1282,17 @@ function barra() {
     location.reload();
   };
 
-  b.append(bEditar, bNovo, bVer);
+  /* O único botão que fala com o servidor. Fica em destaque e mostra quantas
+     mudanças estão esperando, para não sobrar dúvida do que ainda não foi. */
+  const bSalvar = document.createElement('button');
+  bSalvar.type = 'button';
+  bSalvar.className = 'ed-mais ed-mais--salvar';
+  bSalvar.dataset.salvar = '';
+  bSalvar.textContent = 'Salvar edições';
+  bSalvar.title = 'Enviar de uma vez tudo que você mexeu';
+  bSalvar.onclick = salvarTudo;
+
+  b.append(bEditar, bNovo, bVer, bSalvar);
 
   if (REMOTO) {
     const bConta = document.createElement('button');
@@ -910,10 +1317,9 @@ function tarja() {
   const f = document.createElement('div');
   f.className = 'ed-faixa';
   f.innerHTML = REMOTO
-    ? '<strong>Modo de edição — site publicado.</strong> Fica ligado nesta aba enquanto você navega. ' +
-      'Cada mudança vira um commit no GitHub e entra no ar em ~1 min. ' +
-      'Os convidados não veem nada disto.'
-    : '<strong>Modo de edição — seu computador.</strong> As mudanças são gravadas em <code>assets/</code> e no HTML pelo servidor local. ' +
+    ? '<strong>Modo de edição — site publicado.</strong> Nada vai para o GitHub até você clicar em ' +
+      '<strong>Salvar edições</strong>. Os convidados não veem nada disto.'
+    : '<strong>Modo de edição — seu computador.</strong> Nada é gravado até você clicar em <strong>Salvar edições</strong>. ' +
       'Os efeitos de rolagem ficam desligados aqui — use <strong>Ver sem editar</strong> para conferi-los.';
   document.body.appendChild(f);
 }

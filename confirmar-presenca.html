@@ -58,52 +58,77 @@
     </div>
   </section>
 
-  <section data-ancora="2" class="rsvp">
-    <div class="grade grade--borda">
-      <h2 class="rsvp__titulo" data-texto="confirmar-presenca-t3">Vamos contar com você?</h2>
-      <p class="rsvp__texto" data-texto="confirmar-presenca-t4">Preencha os campos abaixo.</p>
-    </div>
+  <section data-ancora="2" class="rsvp" id="convidados">
 
-    <form class="grade grade--borda rsvp__form" id="rsvp">
-      <p class="campo campo--largo" data-texto="confirmar-presenca-t5">
-        <label class="campo__rotulo" for="nome">Seu nome</label>
-        <input class="campo__entrada" type="text" id="nome" name="nome" autocomplete="name" required>
-      </p>
-
-      <fieldset class="campo campo--metade">
-        <legend class="campo__rotulo">Você vai?</legend>
-        <label class="opcao"><input type="radio" name="resposta" value="vou" checked><span>Vou, sim</span></label>
-        <label class="opcao"><input type="radio" name="resposta" value="nao"><span>Não vou conseguir</span></label>
-      </fieldset>
-
-      <fieldset class="campo campo--metade" id="campo-companhia">
-        <legend class="campo__rotulo">Quem vai?</legend>
-        <label class="opcao"><input type="radio" name="companhia" value="so-eu" checked><span>Somente eu</span></label>
-        <label class="opcao"><input type="radio" name="companhia" value="mais"><span>Vou levar mais pessoas</span></label>
-      </fieldset>
-
-      <p class="campo campo--curto" id="campo-quantidade" hidden data-texto="confirmar-presenca-t6">
-        <label class="campo__rotulo" for="quantidade">Quantas pessoas a mais</label>
-        <input class="campo__entrada" type="number" id="quantidade" name="quantidade" min="1" max="10" value="1" inputmode="numeric">
-      </p>
-
-      <div class="campo campo--largo" id="campo-nomes" hidden>
-        <span class="campo__rotulo">Nome de quem vem com você</span>
-        <div class="acompanhantes" id="acompanhantes"></div>
+    <!-- 1. procurar o próprio nome -->
+    <div class="rsvp__passo" data-passo="busca">
+      <div class="grade grade--borda">
+        <h2 class="rsvp__titulo" data-texto="confirmar-presenca-t3">Procure o seu nome</h2>
+        <p class="rsvp__texto" data-texto="confirmar-presenca-t4">Escreva o seu nome, ou parte dele, e clique no que for você.</p>
       </div>
 
-      <p class="campo campo--largo" data-texto="confirmar-presenca-t7">
-        <label class="campo__rotulo" for="recado">Um recado, se quiser</label>
-        <textarea class="campo__entrada campo__entrada--alto" id="recado" name="recado" rows="3"></textarea>
-      </p>
+      <div class="grade grade--borda rsvp__form">
+        <p class="campo campo--largo">
+          <label class="campo__rotulo" for="procura">Seu nome</label>
+          <input class="campo__entrada" type="text" id="procura" autocomplete="name"
+                 placeholder="pelo menos 4 letras" spellcheck="false">
+        </p>
+      </div>
 
-      <button class="botao botao--escuro rsvp__botao" type="submit" id="rsvp-enviar">Confirmar presença</button>
+      <div class="grade grade--borda">
+        <div class="achados" id="achados" role="status" aria-live="polite"></div>
+      </div>
+    </div>
 
-      <p class="rsvp__estado" id="rsvp-estado" role="status" aria-live="polite" hidden data-texto="confirmar-presenca-t8"></p>
-    </form>
+    <!-- 2. a ficha da pessoa escolhida -->
+    <div class="rsvp__passo" data-passo="ficha" hidden>
+      <div class="grade grade--borda">
+        <button type="button" class="rsvp__voltar" data-voltar>← procurar outro nome</button>
+        <h2 class="rsvp__titulo" data-nome-escolhido></h2>
+        <p class="rsvp__texto" data-ja-respondeu hidden></p>
+      </div>
+
+      <form class="grade grade--borda rsvp__form" id="ficha">
+        <fieldset class="campo campo--metade">
+          <legend class="campo__rotulo">Você vem?</legend>
+          <label class="opcao"><input type="radio" name="resposta" value="sim" checked><span>Vou, sim</span></label>
+          <label class="opcao"><input type="radio" name="resposta" value="nao"><span>Não vou conseguir</span></label>
+        </fieldset>
+
+        <p class="campo campo--largo" id="campo-acompanhantes">
+          <label class="campo__rotulo" for="acompanhantes">Vem mais alguém com você?</label>
+          <input class="campo__entrada" type="text" id="acompanhantes"
+                 placeholder="os nomes, separados por vírgula — deixe vazio se vier só">
+        </p>
+
+        <p class="campo campo--largo">
+          <label class="campo__rotulo" for="recado">Um recado, se quiser</label>
+          <textarea class="campo__entrada campo__entrada--alto" id="recado" rows="3"></textarea>
+        </p>
+
+        <button class="botao botao--escuro rsvp__botao" type="submit" id="enviar">Enviar resposta</button>
+        <p class="rsvp__estado" id="estado" role="status" aria-live="polite" hidden></p>
+      </form>
+    </div>
+
+    <!-- 3. o desfecho -->
+    <div class="rsvp__passo rsvp__passo--fim" data-passo="fim" hidden>
+      <div class="grade grade--borda">
+        <p class="fim__floreio" aria-hidden="true">✦</p>
+        <h2 class="fim__titulo" data-fim-titulo></h2>
+        <p class="fim__texto" data-fim-texto></p>
+
+        <div class="fim__convite" data-convite hidden>
+          <button type="button" class="botao botao--escuro" data-baixar>Fazer download do convite</button>
+          <p class="fim__dica" data-convite-dica></p>
+        </div>
+
+        <button type="button" class="rsvp__voltar rsvp__voltar--fim" data-voltar>← procurar outro nome</button>
+      </div>
+    </div>
 
     <div class="grade grade--borda">
-      <p class="rsvp__rodape" data-texto="confirmar-presenca-t9">Prefere falar direto? O nosso <a class="link-sublinhado" href="contato.html">WhatsApp, Instagram e e-mail</a> estão todos aqui.</p>
+      <p class="rsvp__rodape" data-texto="confirmar-presenca-t9">Não achou o seu nome, ou precisa mudar alguma coisa? O nosso <a class="link-sublinhado" href="contato.html">contato</a> está a um clique.</p>
     </div>
   </section>
 
@@ -128,7 +153,7 @@
 </button>
 
 <script src="menu.js"></script>
-<script src="rsvp.js"></script>
+<script src="convidados.js"></script>
 <script src="polen.js"></script>
 <script src="musica.js"></script>
 <script src="editor-remendo.js"></script>
