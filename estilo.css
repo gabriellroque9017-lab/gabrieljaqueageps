@@ -2056,3 +2056,70 @@ html:not(.js) .mosaico figure::after{ display:none; }
   --autor:"Gabriel Hossana Lopes Roque";
   --selo:"GHLR-A6OOXC4OUQKZ";
 }
+
+/* ---------- quem vem junto: escolhido da lista, não digitado ---------- */
+.campo__dica{
+  margin:0 0 10px;
+  font-size:13.5px; line-height:1.45; opacity:.6;
+}
+
+/* as pessoas já escolhidas */
+.convidam{
+  display:flex; flex-wrap:wrap; gap:7px;
+  margin-bottom:12px;
+}
+.convidam__ficha{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:7px 8px 7px 14px;
+  border-radius:16px;
+  background:rgba(76,107,47,.12);
+  border:1px solid rgba(76,107,47,.35);
+  color:var(--vem);
+  font-size:14.5px; line-height:1.2;
+}
+.convidam__tirar{
+  appearance:none; border:0; cursor:pointer;
+  width:20px; height:20px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(76,107,47,.18); color:var(--vem);
+  font:400 15px/1 system-ui, sans-serif;
+  transition:background-color .16s ease;
+}
+.convidam__tirar:hover{ background:var(--vem); color:var(--marfim); }
+.convidam__tirar:focus-visible{ outline:2px solid var(--vem); outline-offset:2px; }
+
+/* o que a busca devolve */
+.convidam__achados{ min-height:26px; margin-top:8px; }
+.convidam__lista{ display:flex; flex-wrap:wrap; gap:7px; }
+.convidam__achado{
+  appearance:none; cursor:pointer;
+  padding:9px 15px; border-radius:16px;
+  background:rgba(255,255,255,.4);
+  border:1px solid rgba(46,49,5,.22);
+  color:var(--oliva);
+  font-size:14.5px; line-height:1.2;
+  transition:transform .16s cubic-bezier(.22,.72,.28,1),
+             background-color .16s ease, border-color .16s ease;
+}
+.convidam__achado:hover{
+  transform:translateY(-1px);
+  background:rgba(255,255,255,.75);
+  border-color:var(--oliva);
+}
+.convidam__achado:focus-visible{ outline:2px solid var(--oliva); outline-offset:2px; }
+.convidam__achado::before{ content:"+ "; opacity:.5; }
+/* quem já disse que não vem aparece no tom dele, para a pessoa notar */
+.convidam__achado[data-resposta="nao"]{ color:var(--nao-vem); border-color:rgba(139,74,50,.35); }
+.convidam__achado[data-resposta="sim"]{ color:var(--vem); border-color:rgba(76,107,47,.35); }
+
+/* ---------- as confirmações para baixar ---------- */
+.fim__convite-titulo{
+  margin:0;
+  font-size:12px; letter-spacing:.11em; text-transform:uppercase;
+  opacity:.55;
+}
+.convites{
+  display:flex; flex-wrap:wrap; gap:10px;
+  margin-top:4px;
+}
+.convites__um{ flex:0 0 auto; }

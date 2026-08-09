@@ -129,11 +129,14 @@
           <label class="opcao"><input type="radio" name="resposta" value="nao"><span>Não vou conseguir</span></label>
         </fieldset>
 
-        <p class="campo campo--largo" id="campo-acompanhantes">
+        <div class="campo campo--largo" id="campo-acompanhantes">
           <label class="campo__rotulo" for="acompanhantes">Vem mais alguém com você?</label>
-          <input class="campo__entrada" type="text" id="acompanhantes"
-                 placeholder="os nomes, separados por vírgula — deixe vazio se vier só">
-        </p>
+          <p class="campo__dica">Procure pelo nome. Só quem está na nossa lista pode ser incluído — cada um recebe a própria confirmação.</p>
+          <div class="convidam" id="convidam"></div>
+          <input class="campo__entrada" type="text" id="acompanhantes" autocomplete="off"
+                 placeholder="escreva o nome de quem vem com você">
+          <div class="convidam__achados" id="convidam-achados" role="status" aria-live="polite"></div>
+        </div>
 
         <p class="campo campo--largo">
           <label class="campo__rotulo" for="recado">Um recado, se quiser</label>
@@ -153,8 +156,9 @@
         <p class="fim__texto" data-fim-texto></p>
 
         <div class="fim__convite" data-convite hidden>
-          <button type="button" class="botao botao--escuro" data-baixar>Fazer download do convite</button>
+          <p class="fim__convite-titulo" data-convite-titulo>Sua confirmação</p>
           <p class="fim__dica" data-convite-dica></p>
+          <div class="convites" id="convites"></div>
         </div>
 
         <button type="button" class="rsvp__voltar rsvp__voltar--fim" data-voltar>← procurar outro nome</button>

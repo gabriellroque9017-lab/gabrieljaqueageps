@@ -47,14 +47,27 @@
    ------------------------------------------------------------ */
 const SERVIDOR = 'https://script.google.com/macros/s/AKfycby2vLzCwrnRtbxTWlNhZJkafBNYoMkI9BdrmGtH6V37DvpRNi3zQV3DiIEOxXDf0JeghA/exec';
 
-/* Onde o nome e o traje são escritos no convite. São proporções do
-   tamanho da imagem (0 a 1), então valem para qualquer resolução do PNG.
-   Ajuste depois de ver o convite pronto uma vez. */
+/* ------------------------------------------------------------
+   O convite pessoal
+   ------------------------------------------------------------
+   O modelo é o mesmo para todo mundo; só o nome é desenhado por cima, no
+   navegador de quem confirmou. Assim não é preciso gerar nem guardar um
+   arquivo por convidado.
+
+   As medidas saíram da leitura dos pixels do próprio modelo: a linha
+   pontilhada está em y=786 de 1536, e vai de x=166 a x=866 de 1024. Em
+   proporção para valerem em qualquer tamanho de arquivo.
+   ------------------------------------------------------------ */
 const CONVITE = {
-  arquivo: 'assets/convite.png',
-  nome:  { x: 0.5, y: 0.62, tamanho: 0.045, fonte: 'Cormorant Garamond, Georgia, serif' },
-  traje: { x: 0.5, y: 0.72, tamanho: 0.022, fonte: 'Jost, system-ui, sans-serif' },
-  cor: '#2E3105',
+  arquivo: 'assets/convite-confirmacao.jpg',
+  // Pinyon Script é a caligrafia do "Gabriel e Jaqueline" impresso no modelo
+  fonte: '"Pinyon Script", "Bickham Script Pro", cursive',
+  cor: '#4F5B42',
+  centroX: 0.504,       // meio da caixa
+  faixaTopo: 0.4290,    // logo abaixo de "NOME DO CONVIDADO:"
+  faixaBase: 0.5052,    // logo acima da linha pontilhada
+  larguraUtil: 0.62,    // não encosta nas laterais da caixa
+  tamanhoMax: 0.055,    // ponto de partida; encolhe até caber
 };
 
 const secao = document.getElementById('convidados');
@@ -215,6 +228,7 @@ const escapar = (s) =>
    ------------------------------------------------------------ */
 function abrirFicha(convidado) {
   escolhido = convidado;
+  acompanham = [];
   $('[data-nome-escolhido]').textContent = convidado.nome;
 
   const jaRespondeu = $('[data-ja-respondeu]');
@@ -222,7 +236,7 @@ function abrirFicha(convidado) {
     jaRespondeu.hidden = false;
     jaRespondeu.textContent =
       convidado.resposta === 'sim'
-        ? 'Você já confirmou. Se quiser, pode mudar a resposta aqui embaixo — ou baixar o convite de novo.'
+        ? 'Você já confirmou. Se quiser, pode mudar a resposta aqui embaixo — ou baixar a confirmação de novo.'
         : 'Você havia dito que não conseguiria vir. Se as coisas mudaram, é só responder de novo.';
   } else {
     jaRespondeu.hidden = true;
@@ -231,13 +245,15 @@ function abrirFicha(convidado) {
   ficha.resposta.value = convidado.resposta === 'nao' ? 'nao' : 'sim';
   $('#acompanhantes').value = '';
   $('#recado').value = '';
+  $('#convidam-achados').replaceChildren();
+  desenharEscolhidos();
   estado.hidden = true;
   ajustarAcompanhantes();
 
   mostrar('ficha');
 
-  // quem já confirmou pode só querer o convite outra vez
-  if (convidado.resposta === 'sim') prepararConvite(convidado, true);
+  // quem já confirmou pode só querer a confirmação outra vez
+  prepararConvite(convidado.resposta === 'sim' ? [convidado] : []);
 }
 
 /* Quem não vem não precisa dizer com quem viria. */
@@ -249,9 +265,100 @@ ficha.addEventListener('change', (e) => {
   if (e.target.name === 'resposta') ajustarAcompanhantes();
 });
 
+/* ------------------------------------------------------------
+   Quem vem junto: escolhido da lista, nunca digitado à mão
+   ------------------------------------------------------------
+   Um campo livre deixava entrar gente que não foi convidada e nomes
+   escritos de qualquer jeito — e aí não haveria como emitir a confirmação
+   de cada um, que precisa do nome exato. Aqui só entra quem está na lista.
+   ------------------------------------------------------------ */
+let acompanham = [];
+const campoJuntos = $('#acompanhantes');
+const achadosJuntos = $('#convidam-achados');
+let aguardaJuntos;
+
+campoJuntos.addEventListener('input', () => {
+  clearTimeout(aguardaJuntos);
+  const termo = campoJuntos.value.trim();
+  if (termo.length < MINIMO) {
+    achadosJuntos.replaceChildren(
+      termo.length ? recado(`faltam ${MINIMO - termo.length} ${MINIMO - termo.length === 1 ? 'letra' : 'letras'}`) : recado('')
+    );
+    return;
+  }
+  aguardaJuntos = setTimeout(() => procurarJuntos(termo), 320);
+});
+
+async function procurarJuntos(termo) {
+  achadosJuntos.replaceChildren(recado('procurando…'));
+  try {
+    const r = await chamar({ acao: 'buscar', q: termo });
+    if (campoJuntos.value.trim() !== termo) return;
+
+    // fora quem já está na lista e a própria pessoa
+    const livres = (r.achados || []).filter(
+      (c) => c.id !== escolhido?.id && !acompanham.some((a) => a.id === c.id)
+    );
+
+    if (!livres.length) {
+      achadosJuntos.replaceChildren(
+        recado('ninguém com esse nome na lista. Quem não está nela não pode ser incluído aqui — fale com a gente.')
+      );
+      return;
+    }
+
+    const caixa = document.createElement('div');
+    caixa.className = 'convidam__lista';
+    livres.forEach((c) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'convidam__achado';
+      b.dataset.resposta = c.resposta || '';
+      b.textContent = c.nome;
+      b.onclick = () => {
+        acompanham.push(c);
+        campoJuntos.value = '';
+        achadosJuntos.replaceChildren();
+        desenharEscolhidos();
+        campoJuntos.focus();
+      };
+      caixa.appendChild(b);
+    });
+    achadosJuntos.replaceChildren(caixa);
+  } catch (e) {
+    achadosJuntos.replaceChildren(recado(e.message));
+  }
+}
+
+function desenharEscolhidos() {
+  const onde = $('#convidam');
+  onde.replaceChildren(
+    ...acompanham.map((c) => {
+      const ficha = document.createElement('span');
+      ficha.className = 'convidam__ficha';
+      ficha.append(c.nome);
+      const x = document.createElement('button');
+      x.type = 'button';
+      x.className = 'convidam__tirar';
+      x.title = 'Tirar da lista';
+      x.textContent = '×';
+      x.onclick = () => {
+        acompanham = acompanham.filter((a) => a.id !== c.id);
+        desenharEscolhidos();
+      };
+      ficha.appendChild(x);
+      return ficha;
+    })
+  );
+  onde.hidden = !acompanham.length;
+}
+
 ficha.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!escolhido) return;
+
+  const vem = ficha.resposta.value === 'sim';
+  const juntos = vem ? acompanham : [];
 
   const botao = $('#enviar');
   botao.disabled = true;
@@ -263,13 +370,28 @@ ficha.addEventListener('submit', async (e) => {
       acao: 'responder',
       id: escolhido.id,
       resposta: ficha.resposta.value,
-      acompanhantes: $('#acompanhantes').value.trim(),
+      acompanhantes: juntos.map((c) => c.nome).join(', '),
       recado: $('#recado').value.trim(),
     });
     if (!r.ok) throw new Error(r.erro || 'não consegui guardar');
 
+    /* Cada acompanhante é registrado por si. Sem isso ele ficaria como texto
+       solto no campo do outro, não contaria como confirmado, e não teria
+       confirmação própria para apresentar na recepção. */
+    for (let i = 0; i < juntos.length; i++) {
+      estado.textContent = `registrando ${primeiroNome(juntos[i].nome)}…`;
+      const s = await chamar({
+        acao: 'responder',
+        id: juntos[i].id,
+        resposta: 'sim',
+        acompanhantes: '',
+        recado: 'confirmado junto com ' + escolhido.nome,
+      });
+      if (!s.ok) throw new Error(`não consegui registrar ${juntos[i].nome}: ${s.erro || ''}`);
+    }
+
     escolhido = { ...escolhido, ...r };
-    desfecho(r);
+    desfecho(r, juntos);
   } catch (erro) {
     estado.textContent = 'Não deu: ' + erro.message + ' Tente de novo daqui a pouco.';
   } finally {
@@ -280,23 +402,31 @@ ficha.addEventListener('submit', async (e) => {
 /* ------------------------------------------------------------
    3. O desfecho
    ------------------------------------------------------------ */
-function desfecho(r) {
-  const primeiro = r.nome.split(' ')[0];
+function desfecho(r, juntos = []) {
+  const primeiro = primeiroNome(r.nome);
   const veio = r.resposta === 'sim';
+  const quantos = juntos.length;
 
   $('[data-fim-titulo]').textContent = veio
-    ? `Que alegria, ${primeiro}.`
+    ? quantos
+      ? `Que alegria, ${primeiro}.`
+      : `Que alegria, ${primeiro}.`
     : `Vamos sentir sua falta, ${primeiro}.`;
 
   $('[data-fim-texto]').textContent = veio
-    ? 'Sua cadeira está guardada. Em 12 de dezembro de 2026, na Vila Botané, ' +
-      'a gente se vê — e ter você lá vai fazer o dia ser o que a gente sonhou.'
+    ? (quantos
+        ? `Estão guardadas ${quantos + 1} cadeiras — a sua e ` +
+          (quantos === 1 ? `a de ${primeiroNome(juntos[0].nome)}. ` : `as de ${juntos.map((c) => primeiroNome(c.nome)).join(', ')}. `)
+        : 'Sua cadeira está guardada. ') +
+      'Em 12 de dezembro de 2026, na Vila Botané, a gente se vê — e ter você lá ' +
+      'vai fazer o dia ser o que a gente sonhou.'
     : 'A gente entende, de verdade. A vida nem sempre deixa, e isso não muda em nada ' +
       'o carinho que temos por você. Se as coisas mudarem, é só voltar aqui e responder ' +
       'de novo — a porta fica aberta até o último dia.';
 
   secao.querySelector('[data-passo="fim"]').dataset.resposta = r.resposta;
-  prepararConvite(r, veio);
+  // uma confirmação por pessoa: cada uma será apresentada na recepção
+  prepararConvite(veio ? [{ nome: r.nome }, ...juntos] : []);
   mostrar('fim');
 }
 
@@ -307,68 +437,124 @@ function desfecho(r) {
    por cima, no navegador. Assim não é preciso gerar um arquivo por
    convidado nem guardar nada.
    ------------------------------------------------------------ */
-function prepararConvite(convidado, mostrarBotao) {
+/* ------------------------------------------------------------
+   Um convite para cada pessoa confirmada
+   ------------------------------------------------------------
+   Quem confirma para si e para mais alguém leva uma confirmação por
+   pessoa: cada uma será apresentada na recepção separadamente.
+   ------------------------------------------------------------ */
+function prepararConvite(pessoas) {
   const caixa = $('[data-convite]');
-  caixa.hidden = !mostrarBotao;
-  if (!mostrarBotao) return;
+  const lista = $('#convites');
+  const gente = [].concat(pessoas).filter(Boolean);
 
+  caixa.hidden = !gente.length;
+  if (!gente.length) return;
+
+  $('[data-convite-titulo]').textContent =
+    gente.length > 1 ? `${gente.length} confirmações` : 'Sua confirmação';
   $('[data-convite-dica]').textContent =
-    'Guarde no celular. É o seu convite pessoal — leve no dia.';
+    gente.length > 1
+      ? 'Uma para cada pessoa. Baixe todas e guarde no celular — na recepção, cada uma apresenta a sua.'
+      : 'Guarde no celular. Na recepção, é só apresentá-la.';
 
-  $('[data-baixar]').onclick = async () => {
-    const b = $('[data-baixar]');
-    const dizia = b.textContent;
-    b.disabled = true;
-    b.textContent = 'preparando…';
-    try {
-      await baixarConvite(convidado);
-      b.textContent = dizia;
-    } catch (e) {
-      b.textContent = 'o convite ainda não está pronto';
-      $('[data-convite-dica]').textContent =
-        'Estamos terminando de desenhá-lo. Volte aqui em alguns dias — sua presença já está confirmada.';
-    } finally {
-      b.disabled = false;
-    }
-  };
+  lista.replaceChildren(
+    ...gente.map((p) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'botao botao--escuro convites__um';
+      b.textContent = gente.length > 1 ? `Baixar de ${primeiroNome(p.nome)}` : 'Fazer download da confirmação';
+      b.onclick = async () => {
+        const dizia = b.textContent;
+        b.disabled = true;
+        b.textContent = 'preparando…';
+        try {
+          await baixarConvite(p);
+          b.textContent = '✓ baixada';
+          setTimeout(() => (b.textContent = dizia), 2600);
+        } catch (e) {
+          b.textContent = dizia;
+          $('[data-convite-dica]').textContent =
+            'Não consegui montar a confirmação agora. Sua presença já está registrada — tente de novo daqui a pouco.';
+        } finally {
+          b.disabled = false;
+        }
+      };
+      return b;
+    })
+  );
 }
 
-function baixarConvite(convidado) {
-  return new Promise((ok, falhou) => {
-    const fundo = new Image();
-    fundo.crossOrigin = 'anonymous';
-    fundo.onerror = () => falhou(new Error('não achei o arquivo do convite'));
-    fundo.onload = () => {
-      const tela = document.createElement('canvas');
-      tela.width = fundo.naturalWidth;
-      tela.height = fundo.naturalHeight;
-      const c = tela.getContext('2d');
-      c.drawImage(fundo, 0, 0);
+const primeiroNome = (n) => String(n).trim().split(/\s+/)[0];
 
-      c.fillStyle = CONVITE.cor;
-      c.textAlign = 'center';
-      c.textBaseline = 'middle';
+/* A caligrafia precisa estar carregada antes de desenhar. Sem esperar, o
+   canvas usa a fonte de reserva sem avisar, e o nome sai com outra letra —
+   um erro que não dá erro nenhum, só sai errado. */
+async function esperarFonte() {
+  if (!document.fonts) return;
+  try {
+    await document.fonts.load('80px "Pinyon Script"');
+    await document.fonts.ready;
+  } catch { /* segue com o que houver */ }
+}
 
-      const escrever = (texto, onde) => {
-        if (!texto) return;
-        c.font = `${Math.round(onde.tamanho * tela.height)}px ${onde.fonte}`;
-        c.fillText(texto, onde.x * tela.width, onde.y * tela.height);
-      };
+async function baixarConvite(pessoa) {
+  await esperarFonte();
 
-      escrever(convidado.nome, CONVITE.nome);
-      escrever(convidado.traje, CONVITE.traje);
-
-      tela.toBlob((arquivo) => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(arquivo);
-        link.download = `convite - ${convidado.nome}.png`;
-        link.click();
-        setTimeout(() => URL.revokeObjectURL(link.href), 4000);
-        ok();
-      }, 'image/png');
-    };
-    fundo.src = CONVITE.arquivo + '?v=1';
+  const fundo = await new Promise((ok, falhou) => {
+    const i = new Image();
+    i.crossOrigin = 'anonymous';
+    i.onload = () => ok(i);
+    i.onerror = () => falhou(new Error('não achei o modelo da confirmação'));
+    i.src = CONVITE.arquivo;
   });
+
+  const tela = document.createElement('canvas');
+  tela.width = fundo.naturalWidth;
+  tela.height = fundo.naturalHeight;
+  const c = tela.getContext('2d');
+  c.drawImage(fundo, 0, 0);
+
+  const nome = String(pessoa.nome || '').trim();
+  const larguraMax = CONVITE.larguraUtil * tela.width;
+  const topo = CONVITE.faixaTopo * tela.height;
+  const base = CONVITE.faixaBase * tela.height;
+  const faixa = base - topo;
+
+  c.textAlign = 'center';
+  c.textBaseline = 'alphabetic';
+
+  /* Encolhe até caber nas duas medidas. A largura é óbvia; a altura importa
+     porque a linha pontilhada é a própria borda de baixo da caixa — o traço
+     descendente de um "J" ou "g" vazaria para fora do convite.
+
+     Mede a tinta de verdade (actualBoundingBox), não o tamanho nominal da
+     fonte: numa caligrafia como esta os dois são bem diferentes. */
+  let tamanho = CONVITE.tamanhoMax * tela.height;
+  let m;
+  while (tamanho > 16) {
+    c.font = `${Math.round(tamanho)}px ${CONVITE.fonte}`;
+    m = c.measureText(nome);
+    const altura = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+    if (m.width <= larguraMax && altura <= faixa) break;
+    tamanho -= 2;
+  }
+
+  // centraliza a tinta na faixa livre, seja qual for o nome
+  const alturaTinta = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+  const linhaDeBase = topo + (faixa - alturaTinta) / 2 + m.actualBoundingBoxAscent;
+
+  c.fillStyle = CONVITE.cor;
+  c.fillText(nome, CONVITE.centroX * tela.width, linhaDeBase);
+
+  const arquivo = await new Promise((ok) => tela.toBlob(ok, 'image/png'));
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(arquivo);
+  link.download = `confirmacao - ${nome}.png`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 5000);
 }
 
 /* ------------------------------------------------------------
