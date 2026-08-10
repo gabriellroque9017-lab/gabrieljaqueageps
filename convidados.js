@@ -64,10 +64,15 @@ const CONVITE = {
   fonte: '"Pinyon Script", "Bickham Script Pro", cursive',
   cor: '#4F5B42',
   centroX: 0.504,       // meio da caixa
-  faixaTopo: 0.4290,    // logo abaixo de "NOME DO CONVIDADO:"
-  faixaBase: 0.5052,    // logo acima da linha pontilhada
+  faixaTopo: 0.4193,    // logo abaixo de "NOME DO CONVIDADO:"
+  faixaBase: 0.5052,    // logo acima da borda de baixo da caixa
   larguraUtil: 0.62,    // não encosta nas laterais da caixa
-  tamanhoMax: 0.055,    // ponto de partida; encolhe até caber
+  tamanhoMax: 0.058,    // ponto de partida; encolhe até caber
+
+  /* O tracejado onde se escreveria à mão. Com o nome impresso ele vira
+     sujeira: os pontinhos cruzam as letras. Apagado antes de escrever. */
+  tracejado: { de: 0.4635, ate: 0.4717 },   // y 712 a 724 de 1536
+  papelLimpo: 0.4740,                        // de onde vem a textura, logo abaixo
 };
 
 const secao = document.getElementById('convidados');
@@ -418,8 +423,9 @@ function desfecho(r, juntos = []) {
         ? `Estão guardadas ${quantos + 1} cadeiras — a sua e ` +
           (quantos === 1 ? `a de ${primeiroNome(juntos[0].nome)}. ` : `as de ${juntos.map((c) => primeiroNome(c.nome)).join(', ')}. `)
         : 'Sua cadeira está guardada. ') +
-      'Em 12 de dezembro de 2026, na Vila Botané, a gente se vê — e ter você lá ' +
-      'vai fazer o dia ser o que a gente sonhou.'
+      'Alguns momentos se tornam ainda mais especiais quando compartilhados com ' +
+      'quem amamos. No dia 12 de dezembro de 2026, esperamos você na Vila Botané ' +
+      'para celebrar conosco.'
     : 'A gente entende, de verdade. A vida nem sempre deixa, e isso não muda em nada ' +
       'o carinho que temos por você. Se as coisas mudarem, é só voltar aqui e responder ' +
       'de novo — a porta fica aberta até o último dia.';
@@ -514,6 +520,19 @@ async function baixarConvite(pessoa) {
   tela.height = fundo.naturalHeight;
   const c = tela.getContext('2d');
   c.drawImage(fundo, 0, 0);
+
+  /* Apaga o tracejado copiando uma faixa de papel de logo abaixo dele — e não
+     pintando um retângulo liso. O fundo tem textura de papel e uma marca-d'água
+     do monograma; um retângulo de cor chapada apareceria como um remendo.
+     Copiando de perto, a textura e o degradê continuam batendo. */
+  const traçoDe = Math.round(CONVITE.tracejado.de * tela.height);
+  const traçoAte = Math.round(CONVITE.tracejado.ate * tela.height);
+  const espessura = traçoAte - traçoDe;
+  c.drawImage(
+    tela,
+    0, Math.round(CONVITE.papelLimpo * tela.height), tela.width, espessura,
+    0, traçoDe, tela.width, espessura
+  );
 
   const nome = String(pessoa.nome || '').trim();
   const larguraMax = CONVITE.larguraUtil * tela.width;
