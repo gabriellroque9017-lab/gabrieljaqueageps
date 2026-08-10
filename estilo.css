@@ -2123,3 +2123,20 @@ html:not(.js) .mosaico figure::after{ display:none; }
   margin-top:4px;
 }
 .convites__um{ flex:0 0 auto; }
+
+/* ------------------------------------------------------------
+   O ponto final de "E esta é apenas a primeira página da nossa."
+   ------------------------------------------------------------
+   É por ele que os noivos entram para editar. Precisa ser um ponto e nada
+   mais: sem cor, sem sublinhado, sem mão do cursor ao passar por cima —
+   qualquer sinal desses entregaria que há algo ali.
+
+   O que ele ganha é área de clique. Um ponto tem uns 5px; com o respiro
+   abaixo ele fica acertável por quem sabe, e continua invisível para quem
+   não sabe. O respiro é interno, então não empurra o texto.
+   ------------------------------------------------------------ */
+.ponto-final{
+  padding:0 .35em .2em 0;
+  margin:0 -.35em -.2em 0;
+  cursor:inherit;
+}

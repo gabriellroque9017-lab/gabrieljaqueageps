@@ -111,32 +111,51 @@ if (/[?&]conta=1(&|$)/.test(location.search)) {
 if (REMOTO) {
   if (pediuNoEndereco) sessionStorage.setItem(MARCA, '1');
   if (!sessionStorage.getItem(MARCA)) {
-    botaoDiscreto();
+    entradaEscondida();
     return;
   }
 }
 
-/* O botão que aparece para todo mundo. Sozinho ele não dá acesso a nada:
-   sem um token válido, nenhuma gravação passa. */
-function botaoDiscreto() {
-  const b = document.createElement('button');
-  b.type = 'button';
-  b.className = 'ed-entrar';
-  b.textContent = 'editar';
-  b.title = 'Editar o site (só para os noivos). Clique segurando Shift para trocar de conta.';
-  b.onclick = (e) => {
-    /* Segurando Shift, o painel abre mesmo já havendo um token guardado. É a
-       saída para quando o token expira ou é revogado: sem isso o botão entrava
-       direto com o token velho, cada gravação falhava com 401, e não sobrava
-       lugar nenhum para digitar o novo. */
+/* ------------------------------------------------------------
+   A entrada escondida
+   ------------------------------------------------------------
+   Não existe botão. Quem abre o painel é o ponto final de "E esta é apenas a
+   primeira página da nossa." — a última frase de Nossa História.
+
+   Feito por JavaScript e não no HTML de propósito: assim o arquivo continua
+   com a frase limpa, e editar esse texto pelo próprio editor não desmonta o
+   segredo. E como isto só roda com o editor DESLIGADO, nenhum <span> extra
+   corre o risco de ser gravado junto numa edição de texto.
+
+   Um convidado que clique ali por acaso não ganha nada: o painel pede um
+   token, e sem ele nenhuma gravação passa.
+   ------------------------------------------------------------ */
+function entradaEscondida() {
+  const frase = document.querySelector('[data-texto="nossa-historia-t31"]');
+  if (!frase) return;                       // só existe em Nossa História
+
+  const texto = frase.textContent;
+  const i = texto.lastIndexOf('.');
+  if (i < 0) return;                        // sem ponto final, sem porta
+
+  const antes = document.createTextNode(texto.slice(0, i));
+  const ponto = document.createElement('span');
+  ponto.textContent = texto.slice(i, i + 1);
+  ponto.className = 'ponto-final';
+  const depois = document.createTextNode(texto.slice(i + 1));
+
+  frase.replaceChildren(antes, ponto, depois);
+
+  ponto.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (Deposito.conf() && !e.shiftKey) {
       sessionStorage.setItem(MARCA, '1');
       location.reload();
       return;
     }
     painelGitHub(true);
-  };
-  document.body.appendChild(b);
+  });
 }
 
 

@@ -96,29 +96,81 @@ let escolhido = null;
    ------------------------------------------------------------ */
 let contadorJSONP = 0;
 
-function chamar(parametros) {
+/* Uma chamada só. Quem tenta de novo e explica o erro é a chamar(), abaixo. */
+function chamada(parametros) {
   return new Promise((ok, falhou) => {
-    if (!SERVIDOR) {
-      falhou(new Error('a lista ainda não foi ligada — falta a URL do Apps Script'));
-      return;
-    }
-
     const nome = 'resposta' + (++contadorJSONP);
     const script = document.createElement('script');
     const limpar = () => { delete window[nome]; script.remove(); clearTimeout(prazo); };
 
+    /* 25s porque o Apps Script "dorme": a primeira chamada do dia leva de 5 a
+       10 segundos até o Google acordar o script. Com 15s, uma manhã fria
+       parecia falha de rede. */
     const prazo = setTimeout(() => {
       limpar();
-      falhou(new Error('a lista demorou demais a responder'));
-    }, 15000);
+      const e = new Error('demorou demais');
+      e.tipo = 'lento';
+      falhou(e);
+    }, 25000);
 
     window[nome] = (dados) => { limpar(); ok(dados); };
 
     const q = new URLSearchParams({ ...parametros, callback: nome });
     script.src = `${SERVIDOR}?${q}`;
-    script.onerror = () => { limpar(); falhou(new Error('não consegui falar com a lista')); };
+    script.onerror = () => {
+      limpar();
+      const e = new Error('a chamada foi barrada');
+      e.tipo = 'barrado';
+      falhou(e);
+    };
     document.head.appendChild(script);
   });
+}
+
+/* Descobre o que está no caminho, em vez de dizer só "não consegui".
+   Duas sondas, da mais simples à mais parecida com a chamada real: a primeira
+   que falhar diz onde está o bloqueio. */
+async function ondeTravou() {
+  const alcanca = (url) =>
+    new Promise((ok) => {
+      const s = document.createElement('script');
+      const fim = (r) => { s.remove(); ok(r); };
+      s.onload = () => fim(true);
+      s.onerror = () => fim(false);
+      s.src = url;
+      document.head.appendChild(s);
+      setTimeout(() => fim(false), 8000);
+    });
+
+  if (!navigator.onLine) {
+    return 'Seu aparelho está sem internet. Confira a conexão e tente de novo.';
+  }
+  if (!(await alcanca('https://script.google.com/favicon.ico?x=' + Date.now()))) {
+    return 'O endereço script.google.com está sendo barrado no seu aparelho. ' +
+           'Quase sempre é uma extensão do navegador (bloqueador de anúncios) ou o antivírus. ' +
+           'Abra o site numa janela anônima: se funcionar ali, é extensão.';
+  }
+  return 'A lista não respondeu. Pode ter sido uma falha momentânea — ' +
+         'espere um instante e tente de novo. Se insistir, fale com a gente pelo contato.';
+}
+
+/* Tenta duas vezes antes de desistir: falha momentânea de rede e o primeiro
+   acesso do dia (com o script ainda dormindo) são os dois motivos mais comuns,
+   e os dois passam sozinhos na segunda tentativa. */
+async function chamar(parametros) {
+  if (!SERVIDOR) {
+    throw new Error('a lista ainda não foi ligada — falta a URL do Apps Script');
+  }
+  try {
+    return await chamada(parametros);
+  } catch (primeira) {
+    await new Promise((r) => setTimeout(r, 1200));
+    try {
+      return await chamada(parametros);
+    } catch (segunda) {
+      throw new Error(await ondeTravou());
+    }
+  }
 }
 
 /* ------------------------------------------------------------
